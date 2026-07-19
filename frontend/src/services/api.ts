@@ -1,4 +1,6 @@
-const BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://jobpilot-backend-l4o2.onrender.com/api/v1';
+console.log("Using API BASE_URL:", BASE_URL);
+
 
 export async function apiRequest<T = any>(
   endpoint: string,
