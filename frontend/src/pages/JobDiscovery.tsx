@@ -83,7 +83,7 @@ export function JobDiscovery() {
     },
     onError: (error: any) => {
       setAutoApplyStatus('error');
-      setAutoApplyStep(error.response?.data?.detail || 'Failed to start pipeline');
+      setAutoApplyStep(error.message || 'Failed to start pipeline');
     }
   });
 
