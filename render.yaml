@@ -28,21 +28,3 @@ services:
         value: "/api/v1"
       - key: USE_S3
         value: false
-
-  # Celery Background Worker
-  - type: worker
-    name: jobpilot-celery-worker
-    runtime: python
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: celery -A app.core.celery_app worker --loglevel=info
-    plan: free
-    envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: JWT_SECRET
-        sync: false
