@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { jobService, JobResponse } from '../services/jobs';
 import { applicationService } from '../services/applications';
 import { useWebSocket } from '../context/WebSocketContext';
-import { AutoApplyModal } from './AutoApplyModal';
+import { AutoApplyModal } from '../components/AutoApplyModal';
 import {
   Search,
   Filter,

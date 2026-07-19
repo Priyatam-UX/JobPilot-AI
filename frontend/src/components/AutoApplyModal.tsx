@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 
 interface AutoApplyModalProps {
