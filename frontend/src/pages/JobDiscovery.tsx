@@ -25,12 +25,13 @@ export function JobDiscovery() {
       return data as any[];
     },
     initialData: [
-      { id: '1', title: 'Senior React Developer', companyName: 'Stripe', location: 'San Francisco, CA', salary: '$160k - $210k', matchScore: 94, sourcePortal: 'LinkedIn', url: '#' },
-      { id: '2', title: 'Backend Staff Engineer (Python)', companyName: 'OpenAI', location: 'San Francisco, CA', salary: '$220k - $300k', matchScore: 91, sourcePortal: 'Greenhouse', url: '#' },
-      { id: '3', title: 'Staff Frontend Engineer', companyName: 'Vercel', location: 'Remote (US)', salary: '$180k - $230k', matchScore: 89, sourcePortal: 'LinkedIn', url: '#' },
-      { id: '4', title: 'Backend Software Engineer', companyName: 'Linear', location: 'Remote (Global)', salary: '$140k - $190k', matchScore: 86, sourcePortal: 'Lever', url: '#' },
+      { id: '1', title: 'Senior React Developer', company_name: 'Stripe', location: 'San Francisco, CA', salary: '$160k – $210k', match_score: 94, source_portal: 'LinkedIn', url: 'https://stripe.com/jobs' },
+      { id: '2', title: 'Backend Staff Engineer (Python)', company_name: 'OpenAI', location: 'San Francisco, CA', salary: '$220k – $300k', match_score: 91, source_portal: 'Greenhouse', url: 'https://openai.com/careers' },
+      { id: '3', title: 'Staff Frontend Engineer', company_name: 'Vercel', location: 'Remote (US)', salary: '$180k – $230k', match_score: 89, source_portal: 'LinkedIn', url: 'https://vercel.com/careers' },
+      { id: '4', title: 'Backend Software Engineer', company_name: 'Linear', location: 'Remote (Global)', salary: '$140k – $190k', match_score: 86, source_portal: 'Lever', url: 'https://linear.app/careers' },
     ] as any[],
   });
+
 
   const bookmarkMutation = useMutation({
     mutationFn: (jobId: string) => applicationService.create({ job_id: jobId }),
@@ -79,8 +80,9 @@ export function JobDiscovery() {
         ) : (
           jobs.map((job) => {
             const isBookmarked = bookmarkedIds.includes(job.id);
-            // Calculate a mock score if matching is not there
-            const score = job.matchScore || 85;
+            const score = job.match_score || job.matchScore || 85;
+            const company = job.company_name || job.companyName || 'Unknown Company';
+            const jobUrl = job.url || job.source_url || '#';
             return (
               <div
                 key={job.id}
@@ -90,7 +92,7 @@ export function JobDiscovery() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <span className="text-xs font-semibold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/10">
-                        {job.companyName || 'Unknown Company'}
+                        {company}
                       </span>
                       <h3 className="text-lg font-bold text-white tracking-tight mt-2">{job.title}</h3>
                     </div>
@@ -138,7 +140,7 @@ export function JobDiscovery() {
                     )}
                   </button>
                   <a
-                    href={job.url || '#'}
+                    href={jobUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="p-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 rounded-xl transition-all duration-300"

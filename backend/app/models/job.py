@@ -21,10 +21,12 @@ class Job(Base):
     company_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("companies.id", ondelete="SET NULL"), nullable=True
     )
+    company_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     requirements: Mapped[dict] = mapped_column(JSON, default=list, nullable=False)
     location: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    salary: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     salary_min: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     salary_max: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     job_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
@@ -32,6 +34,7 @@ class Job(Base):
     source_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
     source_portal: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     external_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, index=True)
+    match_score: Mapped[Optional[int]] = mapped_column(nullable=True)
     status: Mapped[str] = mapped_column(
         String(50), default=JobStatus.ACTIVE.value, nullable=False
     )
@@ -45,6 +48,7 @@ class Job(Base):
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
+
 
     # Relationships
     company = relationship("Company", back_populates="jobs")

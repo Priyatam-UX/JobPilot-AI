@@ -32,6 +32,53 @@ app.add_middleware(
 app.include_router(api_router)
 
 
+@app.on_event("startup")
+def on_startup():
+    """Run DB migrations and seed data on startup."""
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        from app.core.database import engine, Base
+        # Import ALL models so SQLAlchemy knows about them before create_all
+        import app.models  # noqa: F401
+
+        # Add new columns to existing tables safely (idempotent via try/except per column)
+        from sqlalchemy import text, inspect
+        with engine.connect() as conn:
+            inspector = inspect(engine)
+            existing_cols = [c["name"] for c in inspector.get_columns("jobs")]
+
+            new_cols = {
+                "company_name": "VARCHAR(255)",
+                "salary": "VARCHAR(255)",
+                "match_score": "INTEGER",
+            }
+            for col_name, col_type in new_cols.items():
+                if col_name not in existing_cols:
+                    try:
+                        conn.execute(text(f"ALTER TABLE jobs ADD COLUMN {col_name} {col_type}"))
+                        conn.commit()
+                        logger.info(f"✅ Added column jobs.{col_name}")
+                    except Exception as e:
+                        conn.rollback()
+                        logger.warning(f"⚠️  Could not add column jobs.{col_name}: {e}")
+
+        # Create any brand-new tables
+        Base.metadata.create_all(bind=engine)
+        logger.info("✅ Database schema ready.")
+
+    except Exception as e:
+        logger.error(f"❌ DB startup error: {e}")
+
+    # Auto-seed jobs if table is empty
+    try:
+        from app.core.seed_jobs import seed_jobs
+        seed_jobs()
+    except Exception as e:
+        logger.warning(f"⚠️  Job seed skipped: {e}")
+
+
 @app.get("/health", tags=["System"])
 def health_check():
     """System liveness probe endpoint."""
