@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { applicationService } from '../services/applications';
-import { X, Plus, ExternalLink } from 'lucide-react';
+import { X, ExternalLink } from 'lucide-react';
 
 interface KanbanColumn {
   id: string;
