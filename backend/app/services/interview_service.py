@@ -106,12 +106,36 @@ def get_questions(
     return questions[:limit]
 
 
+from pydantic import BaseModel
+import instructor
+from openai import OpenAI
+from app.core.config import settings
+import logging
+
+logger = logging.getLogger(__name__)
+
+class STARAnalysis(BaseModel):
+    situation: str
+    task: str
+    action: str
+    result: str
+
+class FeedbackResult(BaseModel):
+    score: int
+    star_analysis: STARAnalysis
+    strengths: List[str]
+    improvements: List[str]
+    keywords_used: List[str]
+    quantification_count: int
+
 def analyze_star_response(question: str, answer: str) -> Dict[str, Any]:
     """
-    Analyze a STAR method response and provide structured feedback.
-    Rule-based analysis — no OpenAI needed.
+    Analyze a STAR method response and provide structured feedback using OpenAI + Instructor.
+    Falls back to a rule-based engine if the API key is not configured.
     """
-    if not answer or len(answer.split()) < 20:
+    word_count = len(answer.split())
+    
+    if not answer or word_count < 20:
         return {
             "score": 0,
             "star_analysis": {
@@ -121,97 +145,83 @@ def analyze_star_response(question: str, answer: str) -> Dict[str, Any]:
                 "result": "Always end with a measurable outcome.",
             },
             "strengths": [],
-            "improvements": ["Provide a complete answer using the STAR method."],
+            "improvements": ["Provide a complete answer using the STAR method (at least 50 words)."],
             "keywords_used": [],
+            "word_count": word_count,
+            "quantification_count": 0,
         }
 
-    answer_lower = answer.lower()
-    word_count = len(answer.split())
+    # If no key, run a simple fallback (just to prevent crashing, but warn the user)
+    if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "mock-key":
+        return {
+            "score": 50,
+            "star_analysis": {
+                "situation": "⚠️ OpenAI API Key Not Configured.",
+                "task": "To get true AI STAR grading, add your OPENAI_API_KEY to the .env file.",
+                "action": "Currently running the mock fallback analyzer.",
+                "result": "Real AI analysis requires the API key.",
+            },
+            "strengths": ["You provided an answer."],
+            "improvements": ["Add OPENAI_API_KEY to .env to enable the true AI Coach."],
+            "keywords_used": ["mock", "fallback"],
+            "word_count": word_count,
+            "quantification_count": 0,
+        }
 
-    # ── STAR Detection ──────────────────────────────────────────────
-    situation_indicators = ["when", "at", "during", "we were", "our team", "the company", "i was working", "in my", "at my"]
-    task_indicators = ["responsible", "my role", "i needed", "i was asked", "tasked", "my job", "i had to", "goal was"]
-    action_indicators = ["i", "i did", "i built", "i implemented", "i created", "i designed", "i led", "i managed", "i wrote", "i optimized", "i worked"]
-    result_indicators = ["result", "outcome", "achieved", "improved", "increased", "reduced", "saved", "led to", "which resulted", "ultimately", "%", "x", "users", "revenue", "time", "performance"]
+    try:
+        # Enable instructor on the OpenAI client
+        client = instructor.patch(OpenAI(api_key=settings.OPENAI_API_KEY))
 
-    situation_score = min(100, sum(10 for ind in situation_indicators if ind in answer_lower))
-    task_score = min(100, sum(15 for ind in task_indicators if ind in answer_lower))
-    action_score = min(100, sum(3 for ind in action_indicators if re.search(r"\b" + re.escape(ind) + r"\b", answer_lower)))
-    result_score = min(100, sum(15 for ind in result_indicators if ind in answer_lower))
+        prompt = f"""
+        You are an elite Tech Recruiter and Interview Coach.
+        Evaluate this candidate's interview answer to the following question.
+        
+        Question: {question}
+        Answer: {answer}
 
-    # Bonus for quantified results
-    numbers = re.findall(r"\b\d+[\.,]?\d*\s*(%|x|times?|k\b|\$|ms|seconds?|users?|customers?)\b", answer_lower)
-    quantification_bonus = min(30, len(numbers) * 10)
+        Task:
+        1. Break the answer down into the STAR method (Situation, Task, Action, Result).
+        2. Score the answer out of 100 based on clarity, impact, use of 'I' vs 'we', strong action verbs, and quantification.
+        3. Identify 2-3 specific strengths.
+        4. Identify 2-3 specific improvements.
+        5. Extract any strong action verbs or technical keywords they used.
+        6. Count how many times they quantified their results (used numbers, percentages, dollar amounts, timeframes).
+        """
 
-    # Bonus for specific action verbs
-    from app.services.ats_service import ACTION_VERBS
-    action_verb_count = sum(1 for verb in ACTION_VERBS if re.search(r"\b" + verb + r"\b", answer_lower))
-    verb_bonus = min(20, action_verb_count * 5)
+        # Instructor automatically validates and structures the output based on the Pydantic model
+        feedback: FeedbackResult = client.chat.completions.create(
+            model="gpt-4o-mini",
+            response_model=FeedbackResult,
+            temperature=0.2,
+            messages=[
+                {"role": "system", "content": "You are a strict, highly analytical interview grader."},
+                {"role": "user", "content": prompt},
+            ]
+        )
 
-    # ── Overall Score ──────────────────────────────────────────────
-    raw_score = (situation_score * 0.20 + task_score * 0.20 + action_score * 0.30 + result_score * 0.30)
-    raw_score = min(100, raw_score + quantification_bonus * 0.5 + verb_bonus * 0.5)
+        return {
+            "score": feedback.score,
+            "star_analysis": feedback.star_analysis.model_dump(),
+            "strengths": feedback.strengths,
+            "improvements": feedback.improvements,
+            "keywords_used": feedback.keywords_used,
+            "word_count": word_count,
+            "quantification_count": feedback.quantification_count,
+        }
 
-    # ── STAR Feedback ──────────────────────────────────────────────
-    star_analysis = {}
-
-    # Situation feedback
-    if situation_score >= 50:
-        star_analysis["situation"] = "✅ Good context setting. You clearly established the background."
-    else:
-        star_analysis["situation"] = "⚠️ Add more context: Where were you? What was the business situation?"
-
-    # Task feedback
-    if task_score >= 50:
-        star_analysis["task"] = "✅ Clear task ownership. Your specific responsibility is evident."
-    else:
-        star_analysis["task"] = "⚠️ Be more specific about YOUR role. What exactly were you responsible for?"
-
-    # Action feedback
-    if action_score >= 30:
-        star_analysis["action"] = f"✅ Strong actions described using {'good' if action_verb_count >= 3 else 'some'} action verbs."
-    else:
-        star_analysis["action"] = "⚠️ Be more specific about what YOU did (use 'I', not 'we'). Detail each step you took."
-
-    # Result feedback
-    if result_score >= 50:
-        if numbers:
-            star_analysis["result"] = f"✅ Excellent! You quantified the result ({len(numbers)} data point{'s' if len(numbers) > 1 else ''})."
-        else:
-            star_analysis["result"] = "✅ Result mentioned. Try adding specific numbers (%, time saved, revenue impact)."
-    else:
-        star_analysis["result"] = "⚠️ Always end with a measurable result. What changed because of your actions?"
-
-    # ── Strengths ──────────────────────────────────────────────────
-    strengths = []
-    if word_count >= 100:
-        strengths.append("Comprehensive answer with good depth.")
-    if numbers:
-        strengths.append(f"Quantified impact ({len(numbers)} metric{'s' if len(numbers) > 1 else ''}).")
-    if action_verb_count >= 3:
-        strengths.append("Strong use of action verbs demonstrating ownership.")
-    if "i" in answer_lower and "we" not in answer_lower[:100]:
-        strengths.append("Clear personal ownership using 'I' statements.")
-
-    # ── Improvements ──────────────────────────────────────────────
-    improvements = []
-    if word_count < 80:
-        improvements.append("Expand your answer — aim for 150-250 words for a strong STAR response.")
-    if not numbers:
-        improvements.append("Add at least one quantified result (e.g., '40% faster', 'saved 20 hours/week', '$2M impact').")
-    if action_verb_count < 2:
-        improvements.append("Start action sentences with strong verbs: 'built', 'led', 'optimized', 'reduced'.")
-    if "we" in answer_lower[:200] and action_score < 40:
-        improvements.append("Replace 'we' with 'I' in your key action sentences — interviewers want to know YOUR contribution.")
-    if result_score < 30:
-        improvements.append("Add a clear Result section: What was the final impact of your actions?")
-
-    return {
-        "score": round(raw_score),
-        "star_analysis": star_analysis,
-        "strengths": strengths[:3],
-        "improvements": improvements[:3],
-        "keywords_used": [v for v in ACTION_VERBS if re.search(r"\b" + v + r"\b", answer_lower)][:8],
-        "word_count": word_count,
-        "quantification_count": len(numbers),
-    }
+    except Exception as e:
+        logger.error(f"Error calling OpenAI API in Interview Coach: {e}")
+        return {
+            "score": 0,
+            "star_analysis": {
+                "situation": "Error connecting to AI.",
+                "task": "Error connecting to AI.",
+                "action": "Error connecting to AI.",
+                "result": "Error connecting to AI.",
+            },
+            "strengths": [],
+            "improvements": ["Check your OpenAI API key and connection status."],
+            "keywords_used": [],
+            "word_count": word_count,
+            "quantification_count": 0,
+        }

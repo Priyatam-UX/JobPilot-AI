@@ -29,8 +29,12 @@ def list_resumes(
     return service.get_user_resumes(current_user.id)
 
 
+from fastapi import BackgroundTasks
+from app.tasks.intelligence_tasks import run_resume_analysis_background
+
 @router.post("/upload", status_code=201)
 def upload_resume(
+    background_tasks: BackgroundTasks,
     title: str = Form(...),
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
@@ -38,17 +42,19 @@ def upload_resume(
 ):
     """
     Upload a PDF or DOCX resume file.
-    Automatically extracts text, skills, contact info, and computes ATS score.
+    Triggers background task to extract text, skills, contact info, and computes ATS score without blocking.
     """
     service = ResumeService(db)
     resume = service.upload_resume(current_user.id, title, file)
 
-    # Run automatic skill extraction and ATS scoring
-    analysis = {}
-    ats_report = {}
     if resume.raw_text:
-        analysis = extract_all(resume.raw_text)
-        ats_report = compute_ats_score(resume.raw_text)
+        background_tasks.add_task(
+            run_resume_analysis_background, 
+            db, 
+            str(current_user.id), 
+            str(resume.id), 
+            resume.raw_text
+        )
 
     return {
         "id": str(resume.id),
@@ -57,15 +63,16 @@ def upload_resume(
         "file_path": resume.file_path,
         "created_at": resume.created_at.isoformat(),
         "updated_at": resume.updated_at.isoformat(),
-        "word_count": analysis.get("word_count", 0),
-        "skills": analysis.get("skills", {}),
-        "all_skills_flat": analysis.get("all_skills_flat", []),
-        "experience_years": analysis.get("experience_years", 0),
-        "contact": analysis.get("contact", {}),
-        "sections": analysis.get("sections", {}),
-        "ats_score": ats_report.get("overall_score", 0),
-        "ats_grade": ats_report.get("grade", "N/A"),
-        "ats_suggestions": ats_report.get("suggestions", []),
+        # Initial empty stats while background task processes
+        "word_count": 0,
+        "skills": {},
+        "all_skills_flat": [],
+        "experience_years": 0,
+        "contact": {},
+        "sections": {},
+        "ats_score": 0,
+        "ats_grade": "Pending Analysis",
+        "ats_suggestions": ["Analysis is running in the background..."],
     }
 
 

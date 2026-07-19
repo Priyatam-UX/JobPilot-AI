@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
 
     # AI API Keys
-    OPENAI_API_KEY: str = "mock-key"
+    OPENAI_API_KEY: Union[str, None] = None
     
     # OAuth Configurations
     GOOGLE_CLIENT_ID: str = ""

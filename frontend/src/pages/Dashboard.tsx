@@ -43,7 +43,6 @@ export function Dashboard() {
   const { data: summary, isLoading } = useQuery<DashboardSummary>({
     queryKey: ['dashboardSummary'],
     queryFn: () => apiRequest<DashboardSummary>('/dashboard/summary'),
-    refetchInterval: 60_000, // auto-refresh every 60 seconds
     initialData: {
       applications: { total: 0, bookmarked: 0, applying: 0, applied: 0, screening: 0, interview: 0, offer: 0, rejected: 0, withdrawn: 0 },
       resumes: { total: 0 },
@@ -90,7 +89,7 @@ export function Dashboard() {
         <div className="relative max-w-2xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 rounded-full text-xs font-semibold text-indigo-400 border border-indigo-500/20 mb-4">
             <Sparkles className="w-3.5 h-3.5" />
-            {isLoading ? 'Loading your data...' : 'Live Data — Updates every 60s'}
+            {isLoading ? 'Loading your data...' : 'Live WebSocket Connection Active'}
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight text-white mb-2">
             Welcome back to JobPilot AI
