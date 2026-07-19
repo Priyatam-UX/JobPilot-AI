@@ -3,22 +3,32 @@ import { apiRequest } from './api';
 export interface JobResponse {
   id: string;
   title: string;
-  company_name?: string;   // Direct company name string
+  company_name?: string;
   description?: string;
   location?: string;
-  salary?: string;         // Pre-formatted string e.g. "$160k – $210k"
-  salary_min?: number;
-  salary_max?: number;
+  salary?: string;
+  job_type?: string;
   remote: boolean;
-  source_url?: string;
-  url?: string;            // Alias for source_url (frontend-friendly)
+  url?: string;
   source_portal?: string;
   match_score?: number;
+  matched_keywords?: string[];
+  missing_keywords?: string[];
+  status: string;
   created_at: string;
 }
 
 export const jobService = {
-  list: (skip = 0, limit = 50) => apiRequest<JobResponse[]>(`/jobs/?skip=${skip}&limit=${limit}`),
-  search: (q: string) => apiRequest<JobResponse[]>(`/jobs/search?q=${q}`),
+  discover: () => apiRequest<JobResponse[]>('/jobs/discover'),
+
+  list: () => apiRequest<JobResponse[]>('/jobs/'),
+  
+  create: (data: any) => apiRequest<JobResponse>('/jobs/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
+  search: (query: string) => apiRequest<JobResponse[]>(`/jobs/search?q=${encodeURIComponent(query)}`),
+
   get: (id: string) => apiRequest<JobResponse>(`/jobs/${id}`),
 };

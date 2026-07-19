@@ -1,157 +1,286 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { jobService } from '../services/jobs';
+import { jobService, JobResponse } from '../services/jobs';
 import { applicationService } from '../services/applications';
 import {
   Search,
+  Filter,
+  Bookmark,
+  ExternalLink,
   MapPin,
   DollarSign,
-  Bookmark,
   Sparkles,
-  Link as LinkIcon,
-  Loader2,
+  Zap,
   CheckCircle,
+  AlertCircle,
+  Loader2,
+  RefreshCw,
 } from 'lucide-react';
 
 export function JobDiscovery() {
   const queryClient = useQueryClient();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeJob, setActiveJob] = useState<JobResponse | null>(null);
 
-  const { data: jobs, isLoading } = useQuery<any[]>({
-    queryKey: ['jobs', searchTerm],
-    queryFn: async () => {
-      const data = searchTerm ? await jobService.search(searchTerm) : await jobService.list();
-      return data as any[];
-    },
-    initialData: [
-      { id: '1', title: 'Senior React Developer', company_name: 'Stripe', location: 'San Francisco, CA', salary: '$160k – $210k', match_score: 94, source_portal: 'LinkedIn', url: 'https://stripe.com/jobs' },
-      { id: '2', title: 'Backend Staff Engineer (Python)', company_name: 'OpenAI', location: 'San Francisco, CA', salary: '$220k – $300k', match_score: 91, source_portal: 'Greenhouse', url: 'https://openai.com/careers' },
-      { id: '3', title: 'Staff Frontend Engineer', company_name: 'Vercel', location: 'Remote (US)', salary: '$180k – $230k', match_score: 89, source_portal: 'LinkedIn', url: 'https://vercel.com/careers' },
-      { id: '4', title: 'Backend Software Engineer', company_name: 'Linear', location: 'Remote (Global)', salary: '$140k – $190k', match_score: 86, source_portal: 'Lever', url: 'https://linear.app/careers' },
-    ] as any[],
+  // Fetch live jobs from backend (which fetches from Remotive + scores against resume)
+  const { data: jobs = [], isLoading, refetch, isRefetching } = useQuery<JobResponse[]>({
+    queryKey: ['discoverJobs'],
+    queryFn: jobService.discover,
+    refetchOnWindowFocus: false, // Don't spam the API
   });
 
+  const saveJobMutation = useMutation({
+    mutationFn: (job: JobResponse) => jobService.create(job),
+  });
 
   const bookmarkMutation = useMutation({
-    mutationFn: (jobId: string) => applicationService.create({ job_id: jobId }),
-    onSuccess: (_, jobId) => {
+    mutationFn: async (job: JobResponse) => {
+      // 1. Ensure job exists in DB
+      const savedJob = await saveJobMutation.mutateAsync(job);
+      // 2. Create bookmark application
+      return applicationService.create({
+        job_id: savedJob.id,
+        status: 'bookmarked',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
       queryClient.invalidateQueries({ queryKey: ['applicationCounts'] });
-      setBookmarkedIds((prev) => [...prev, jobId]);
     },
   });
 
-  const handleBookmark = (id: string) => {
-    bookmarkMutation.mutate(id);
+  const handleBookmark = (e: React.MouseEvent, job: JobResponse) => {
+    e.stopPropagation();
+    bookmarkMutation.mutate(job);
   };
 
+  const filteredJobs = jobs.filter(
+    (job) =>
+      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (job.company_name && job.company_name.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
-    <div className="space-y-8 animate-fadeIn">
-      {/* Search Header Banner */}
-      <div className="relative rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 p-8 shadow-xl">
-        <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-[radial-gradient(circle_at_bottom_right,_var(--tw-gradient-stops))] from-indigo-500/10 via-violet-500/5 to-transparent blur-xl pointer-events-none"></div>
-        <div className="max-w-2xl">
-          <h2 className="text-2xl font-extrabold tracking-tight text-white mb-4">Semantic Job Matcher</h2>
-          <div className="relative flex items-center gap-3">
-            <div className="relative flex-1">
-              <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-500"><Search className="w-5 h-5" /></span>
-              <input
-                type="text"
-                placeholder="Search job title or skills..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none text-slate-100 text-sm transition-all duration-300"
-              />
-            </div>
+    <div className="h-full flex flex-col min-h-0 animate-fadeIn relative space-y-6">
+      {/* Header & Search */}
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between shrink-0">
+        <div>
+          <h2 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
+            <Zap className="w-6 h-6 text-indigo-400" /> Live Job Discovery
+          </h2>
+          <p className="text-sm text-slate-400 mt-1">
+            Real-time remote software jobs, scored against your active resume.
+          </p>
+        </div>
+        <div className="flex gap-3 w-full md:w-auto">
+          <div className="relative flex-1 md:w-80 group">
+            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-indigo-400 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search by role or company..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl py-2.5 pl-11 pr-4 outline-none text-sm text-slate-100 transition-colors shadow-sm"
+            />
           </div>
+          <button className="p-2.5 bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 rounded-xl text-slate-300 transition-all shadow-sm">
+            <Filter className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => refetch()}
+            disabled={isRefetching}
+            className="p-2.5 bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 rounded-xl text-indigo-400 transition-all shadow-sm flex items-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
+          </button>
         </div>
       </div>
 
-      {/* Grid Results */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {isLoading ? (
-          <div className="col-span-2 text-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-indigo-400 mx-auto" />
-          </div>
-        ) : jobs.length === 0 ? (
-          <div className="col-span-2 text-center py-12">
-            <p className="text-slate-400">No jobs found matching search criteria.</p>
-          </div>
-        ) : (
-          jobs.map((job) => {
-            const isBookmarked = bookmarkedIds.includes(job.id);
-            const score = job.match_score || job.matchScore || 85;
-            const company = job.company_name || job.companyName || 'Unknown Company';
-            const jobUrl = job.url || job.source_url || '#';
-            return (
+      {/* Main Layout */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 min-h-0">
+        {/* Jobs List */}
+        <div className="lg:col-span-1 space-y-4 overflow-y-auto pr-2 pb-4">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+              <Loader2 className="w-8 h-8 animate-spin text-indigo-400 mb-4" />
+              <p className="text-sm">Fetching and scoring live jobs...</p>
+            </div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="text-center py-12 text-slate-500 text-sm">
+              No jobs found. Try adjusting your search.
+            </div>
+          ) : (
+            filteredJobs.map((job) => (
               <div
                 key={job.id}
-                className="glass rounded-3xl p-6 shadow-md border border-slate-800/80 hover:border-slate-700 transition-all duration-300 flex flex-col justify-between"
+                onClick={() => setActiveJob(job)}
+                className={`p-5 rounded-2xl cursor-pointer transition-all duration-300 border ${
+                  activeJob?.id === job.id
+                    ? 'bg-indigo-950/20 border-indigo-500/40 shadow-md shadow-indigo-500/5'
+                    : 'bg-slate-950/60 border-slate-900 hover:border-slate-800 hover:bg-slate-900/80'
+                }`}
               >
-                <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <span className="text-xs font-semibold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/10">
-                        {company}
-                      </span>
-                      <h3 className="text-lg font-bold text-white tracking-tight mt-2">{job.title}</h3>
-                    </div>
-                    {/* Match Badge */}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      {score}% Match
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 mb-6">
-                    <p className="text-xs text-slate-400 flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-slate-500" />
-                      {job.location || 'Remote'}
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-white text-sm leading-snug truncate pr-2">
+                      {job.title}
+                    </h3>
+                    <p className="text-xs font-semibold text-indigo-400 mt-1">
+                      {job.company_name}
                     </p>
-                    {job.salary && (
-                      <p className="text-xs text-slate-400 flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-slate-500" />
-                        {job.salary}
-                      </p>
-                    )}
                   </div>
+                  <button
+                    onClick={(e) => handleBookmark(e, job)}
+                    disabled={bookmarkMutation.isPending}
+                    className="p-2 bg-slate-900 hover:bg-indigo-600 hover:text-white border border-slate-800 hover:border-indigo-500 text-slate-400 rounded-lg transition-all duration-300 shadow-sm shrink-0 disabled:opacity-50"
+                  >
+                    <Bookmark className="w-4 h-4" />
+                  </button>
                 </div>
 
-                <div className="flex gap-3 pt-4 border-t border-slate-900/60">
-                  <button
-                    onClick={() => handleBookmark(job.id)}
-                    disabled={isBookmarked}
-                    className={`flex-1 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
-                      isBookmarked
-                        ? 'bg-slate-900 text-emerald-400 border border-slate-800'
-                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/10 hover:scale-[1.01]'
-                    }`}
-                  >
-                    {isBookmarked ? (
-                      <>
-                        <CheckCircle className="w-4 h-4" />
-                        Bookmarked
-                      </>
-                    ) : (
-                      <>
-                        <Bookmark className="w-4 h-4" />
-                        Bookmark & Track
-                      </>
-                    )}
-                  </button>
-                  <a
-                    href={jobUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 rounded-xl transition-all duration-300"
-                  >
-                    <LinkIcon className="w-4 h-4" />
-                  </a>
+                <div className="flex flex-wrap gap-2 text-[10px] font-semibold mb-4">
+                  {job.location && (
+                    <span className="flex items-center gap-1 text-slate-400 bg-slate-900/50 px-2 py-1 rounded-md border border-slate-800">
+                      <MapPin className="w-3 h-3" />
+                      {job.location}
+                    </span>
+                  )}
+                  {job.salary && (
+                    <span className="flex items-center gap-1 text-emerald-400 bg-emerald-950/20 px-2 py-1 rounded-md border border-emerald-900/30">
+                      <DollarSign className="w-3 h-3" />
+                      {job.salary}
+                    </span>
+                  )}
+                </div>
+
+                {/* Match Score Bar */}
+                <div className="mt-4 pt-4 border-t border-slate-800/50">
+                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <span className="text-slate-500 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Resume Match
+                    </span>
+                    <span className={job.match_score && job.match_score >= 80 ? 'text-emerald-400' : 'text-amber-400'}>
+                      {job.match_score || 0}%
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${
+                        job.match_score && job.match_score >= 80 ? 'bg-emerald-500' : 'bg-amber-500'
+                      }`}
+                      style={{ width: `${job.match_score || 0}%` }}
+                    />
+                  </div>
                 </div>
               </div>
-            );
-          })
-        )}
+            ))
+          )}
+        </div>
+
+        {/* Job Details Panel */}
+        <div className="lg:col-span-2 h-full hidden lg:block">
+          {activeJob ? (
+            <div className="glass rounded-3xl p-8 shadow-md h-full flex flex-col overflow-y-auto animate-fadeIn relative">
+              <div className="flex justify-between items-start mb-6 pb-6 border-b border-slate-900/60">
+                <div>
+                  <h2 className="text-2xl font-extrabold text-white tracking-tight leading-snug mb-2">
+                    {activeJob.title}
+                  </h2>
+                  <div className="flex items-center gap-4 text-sm font-semibold">
+                    <span className="text-indigo-400">{activeJob.company_name}</span>
+                    <span className="text-slate-600">•</span>
+                    <span className="text-slate-400">{activeJob.location}</span>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={(e) => handleBookmark(e, activeJob)}
+                    disabled={bookmarkMutation.isPending}
+                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2"
+                  >
+                    <Bookmark className="w-4 h-4" />
+                    Save
+                  </button>
+                  {activeJob.url && (
+                    <a
+                      href={activeJob.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/10 transition-all flex items-center gap-2"
+                    >
+                      Apply <ExternalLink className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Match Insights */}
+              <div className="mb-8 p-5 rounded-2xl bg-indigo-950/10 border border-indigo-500/20">
+                <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-2 mb-4">
+                  <Sparkles className="w-4 h-4" /> AI Resume Match Analysis
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Matched Keywords */}
+                  <div>
+                    <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Matched Skills
+                    </h5>
+                    <div className="flex flex-wrap gap-2">
+                      {activeJob.matched_keywords && activeJob.matched_keywords.length > 0 ? (
+                        activeJob.matched_keywords.map((kw, i) => (
+                          <span key={i} className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold capitalize shadow-sm">
+                            {kw}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-xs text-slate-500">No matching keywords found.</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Missing Keywords */}
+                  <div>
+                    <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-400" /> Missing Skills
+                    </h5>
+                    <div className="flex flex-wrap gap-2">
+                      {activeJob.missing_keywords && activeJob.missing_keywords.length > 0 ? (
+                        activeJob.missing_keywords.map((kw, i) => (
+                          <span key={i} className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold capitalize shadow-sm">
+                            {kw}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-xs text-slate-500">You hit all the keywords!</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Job Description */}
+              <div>
+                <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Job Description</h3>
+                <div className="prose prose-invert prose-sm max-w-none text-slate-300 leading-relaxed">
+                  {activeJob.description ? (
+                    <div dangerouslySetInnerHTML={{ __html: activeJob.description }} />
+                  ) : (
+                    <p>No description provided.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="glass rounded-3xl p-8 shadow-md h-full flex flex-col items-center justify-center text-center">
+              <Zap className="w-16 h-16 text-slate-800 mb-6" />
+              <h3 className="text-xl font-bold text-white mb-2">Select a Job</h3>
+              <p className="text-slate-500 text-sm max-w-md leading-relaxed">
+                Choose a job from the list to view its full description, analyze how well your resume matches the requirements, and identify missing keywords.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

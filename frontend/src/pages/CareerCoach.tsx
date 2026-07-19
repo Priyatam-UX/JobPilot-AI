@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest } from '../services/api';
 import {
   Send,
   Loader2,
@@ -17,39 +19,42 @@ export function CareerCoach() {
     { sender: 'ai', text: 'Hello! I am your Career Coach AI. I can analyze skill gaps, generate custom learning roadmaps, create salary negotiation scripts, or recommend resume formatting changes. What would you like to build today?' },
   ]);
   const [inputText, setInputText] = useState('');
-  const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const chatMutation = useMutation({
+    mutationFn: (message: string) => {
+      const history = messages.map(m => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        content: m.text
+      }));
+      return apiRequest<{ role: string; content: string }>('/coach/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message, history }),
+      });
+    },
+    onSuccess: (data) => {
+      setMessages((prev) => [...prev, { sender: 'ai', text: data.content }]);
+    },
+    onError: () => {
+      setMessages((prev) => [...prev, { sender: 'ai', text: "I'm having trouble connecting to my knowledge base right now. Please try again." }]);
+    }
+  });
+
   const handleSend = (textToSend = inputText) => {
-    if (!textToSend.trim()) return;
+    if (!textToSend.trim() || chatMutation.isPending) return;
 
     setMessages((prev) => [...prev, { sender: 'user', text: textToSend }]);
     setInputText('');
-    setLoading(true);
-
-    // Simulate career coach agent responses based on prompts
-    setTimeout(() => {
-      let aiResponse = "I have updated your profile context. Let me analyze that.";
-      if (textToSend.toLowerCase().includes('roadmap')) {
-        aiResponse = "Here is your custom **Golang & Distributed Systems learning roadmap**:\n\n1. **Core Concurrency:** Master Channels, Goroutines, and `sync` primitives (1 week).\n2. **Network Programming:** Build standard HTTP/gRPC multiplexers (1 week).\n3. **Vector/Semantic search databases:** Learn pgvector, Qdrant, and indexes (2 weeks).\n4. **Task queues:** Integrate Celery or temporal workflows (2 weeks).";
-      } else if (textToSend.toLowerCase().includes('negotiation')) {
-        aiResponse = "Here is your **Salary Negotiation Script** for a Staff Engineer role:\n\n* **Acknowledge offer:** 'Thank you for the offer. I am thrilled about the opportunity to lead the backend scaling efforts at Stripe.'\n* **Anchor the ask:** 'Based on my experience scaling database transactions by 10x and leading a team of 6 engineers, I was expecting base compensation closer to $195k rather than $175k. If we can adjust this, I am ready to sign the agreement today.'";
-      } else if (textToSend.toLowerCase().includes('gap')) {
-        aiResponse = "Based on your Master Resume and the desired Senior React Role, here is your **Skill Gap Analysis**:\n\n* **High Priority Gaps:** TanStack query optimization, React 19 concurrent features (`useActionState`, `useTransition`), WebSockets state management.\n* **Recommendations:** Complete a mock project implementing real-time feeds using WebSockets and TanStack query caching.";
-      }
-
-      setMessages((prev) => [...prev, { sender: 'ai', text: aiResponse }]);
-      setLoading(false);
-    }, 1500);
+    chatMutation.mutate(textToSend);
   };
 
   const quickPrompts = [
-    { title: 'Skill Gap Analysis', prompt: 'Analyze my master resume for skill gaps in Senior Backend roles', icon: Award },
-    { title: 'Learning Roadmap', prompt: 'Generate a learning roadmap for Golang & pgvector databases', icon: BookOpen },
+    { title: 'Skill Gap Analysis', prompt: 'Analyze my skills for gaps in Senior Backend roles', icon: Award },
+    { title: 'Learning Roadmap', prompt: 'Generate a learning roadmap for Golang & Distributed Systems', icon: BookOpen },
     { title: 'Salary Script', prompt: 'Write a salary negotiation script for Staff Frontend Engineer', icon: TrendingUp },
   ];
 
@@ -71,22 +76,27 @@ export function CareerCoach() {
             >
               {msg.text.split('\n').map((line, idx) => (
                 <p key={idx} className={line ? 'mb-2' : 'h-2'}>
-                  {line.startsWith('**') || line.startsWith('*') ? (
-                    // Very simple parsing for bold/bullet items
+                  {line.startsWith('**') || line.startsWith('*') || line.startsWith('>') || line.startsWith('#') ? (
+                    // Very simple parsing for bold/bullet items and basic markdown
                     <span dangerouslySetInnerHTML={{
                       __html: line
                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                         .replace(/^\*\s(.*)/g, '• $1')
+                        .replace(/^-\s(.*)/g, '• $1')
+                        .replace(/^>\s(.*)/g, '<em class="opacity-80 border-l-2 border-indigo-400 pl-2 ml-1 block">$1</em>')
+                        .replace(/^###?\s(.*)/g, '<strong class="text-indigo-300 block mt-2">$1</strong>')
                     }} />
                   ) : (
-                    line
+                    <span dangerouslySetInnerHTML={{
+                      __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    }} />
                   )}
                 </p>
               ))}
             </div>
           </div>
         ))}
-        {loading && (
+        {chatMutation.isPending && (
           <div className="flex justify-start">
             <div className="bg-slate-900/60 border border-slate-900 rounded-2xl rounded-bl-none px-5 py-3.5 flex items-center gap-2 text-slate-400 text-xs font-semibold">
               <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
@@ -133,14 +143,15 @@ export function CareerCoach() {
         >
           <input
             type="text"
-            placeholder="Ask your coach anything..."
+            placeholder="Ask your coach anything (e.g., 'help me prep for a system design interview')..."
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            className="flex-1 bg-transparent px-4 py-2.5 outline-none text-slate-100 text-sm"
+            disabled={chatMutation.isPending}
+            className="flex-1 bg-transparent px-4 py-2.5 outline-none text-slate-100 text-sm disabled:opacity-50"
           />
           <button
             type="submit"
-            disabled={loading || !inputText.trim()}
+            disabled={chatMutation.isPending || !inputText.trim()}
             className="p-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-850 disabled:text-slate-500 text-white rounded-xl transition-all duration-300"
           >
             <Send className="w-4 h-4" />
