@@ -1,0 +1,48 @@
+services:
+  # FastAPI Backend Web Service
+  - type: web
+    name: jobpilot-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 10080
+      - key: REFRESH_TOKEN_EXPIRE_MINUTES
+        value: 43200
+      - key: CORS_ORIGINS
+        value: '["https://jobpilot-ai.vercel.app", "http://localhost:5173"]'
+      - key: PROJECT_NAME
+        value: "AI Job Copilot"
+      - key: API_V1_STR
+        value: "/api/v1"
+      - key: USE_S3
+        value: false
+
+  # Celery Background Worker
+  - type: worker
+    name: jobpilot-celery-worker
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A app.core.celery_app worker --loglevel=info
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
