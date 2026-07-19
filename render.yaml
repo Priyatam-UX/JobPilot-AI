@@ -16,12 +16,16 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: 10080
       - key: REFRESH_TOKEN_EXPIRE_MINUTES
         value: 43200
       - key: CORS_ORIGINS
-        value: '["https://jobpilot-ai.vercel.app", "http://localhost:5173"]'
+        value: '["https://job-pilot-ai-priyatam-ux.vercel.app", "http://localhost:5173"]'
       - key: PROJECT_NAME
         value: "AI Job Copilot"
       - key: API_V1_STR

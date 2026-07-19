@@ -32,22 +32,39 @@ export function Login() {
     }
   };
 
-  const handleOAuth = async (provider: 'google' | 'github') => {
+  const handleGoogleLogin = () => {
     setLoading(true);
     setError('');
-    try {
-      const mockToken = provider === 'google' ? 'mock-google-token' : 'mock-github-token';
-      const tokens = await authService.oauthLogin(provider, mockToken);
-      localStorage.setItem('token', tokens.access_token);
-      const user = await authService.getMe();
-      setAuth(tokens.access_token, tokens.refresh_token, user);
-      navigate('/');
-    } catch (err: any) {
-      setError(err.message || `Failed to sign in with ${provider}`);
-    } finally {
+    const client = (window as any).google?.accounts?.oauth2?.initTokenClient({
+      client_id: '904539444238-3vpogti4428sojsabo8cpto44a7j7a6e.apps.googleusercontent.com',
+      scope: 'email profile openid',
+      callback: async (response: any) => {
+        if (response.error) {
+          setError('Google sign-in was cancelled or failed.');
+          setLoading(false);
+          return;
+        }
+        try {
+          const tokens = await authService.oauthLogin('google', response.access_token);
+          localStorage.setItem('token', tokens.access_token);
+          const user = await authService.getMe();
+          setAuth(tokens.access_token, tokens.refresh_token, user);
+          navigate('/');
+        } catch (err: any) {
+          setError(err.message || 'Failed to sign in with Google');
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+    if (client) {
+      client.requestAccessToken();
+    } else {
+      setError('Google Sign-In is not available. Please try again.');
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen w-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 p-4 font-sans">
@@ -129,7 +146,7 @@ export function Login() {
           {/* Social Sign-in */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             <button
-              onClick={() => handleOAuth('google')}
+              onClick={handleGoogleLogin}
               disabled={loading}
               className="flex items-center justify-center gap-2.5 py-2.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 rounded-xl text-slate-300 text-sm transition-all duration-300"
             >
