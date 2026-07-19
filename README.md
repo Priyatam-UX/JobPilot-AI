@@ -1,5 +1,7 @@
 # 🚀 JobPilot AI — Enterprise AI Job Copilot
 
+> **Created & Owned by [Priyatam](https://github.com/Priyatam-UX)**
+
 JobPilot AI is a production-ready, enterprise-grade AI-powered job application assistant and automation platform. It automates job search discovery, ATS optimization, resume tailoring, cover letter drafting, interview coaching, and one-click browser-based application automation.
 
 ---
@@ -160,3 +162,23 @@ ai-job-copilot/
    ```
 
 7. Access the app locally at **`http://localhost:5173`**.
+
+---
+
+## 👤 Author & Ownership
+
+**JobPilot AI** is designed, built, and maintained by **[Priyatam](https://github.com/Priyatam-UX)**.
+
+- GitHub: [@Priyatam-UX](https://github.com/Priyatam-UX)
+- Project: [JobPilot-AI](https://github.com/Priyatam-UX/JobPilot-AI)
+- Live App: [job-pilot-ai-priyatam-ux.vercel.app](https://job-pilot-ai-priyatam-ux.vercel.app/)
+
+All intellectual property, design decisions, and architecture belong to **Priyatam**.
+
+---
+
+## 📄 License
+
+Copyright © 2025 **Priyatam**. All rights reserved.
+
+This project and all its contents (source code, design, documentation) are the exclusive intellectual property of **Priyatam**. Unauthorized copying, distribution, modification, or use of this project — in whole or in part — without explicit written permission from the owner is strictly prohibited.

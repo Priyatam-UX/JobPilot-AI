@@ -87,6 +87,9 @@ export function Layout({ children }: LayoutProps) {
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>
+          <p className="mt-3 text-center text-[11px] text-slate-700 select-none">
+            © 2025 <span className="text-slate-600 font-semibold">Priyatam</span>. All rights reserved.
+          </p>
         </div>
       </aside>
 
