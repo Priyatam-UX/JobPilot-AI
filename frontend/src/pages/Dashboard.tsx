@@ -7,7 +7,6 @@ import {
   Award,
   ArrowUpRight,
   Sparkles,
-  TrendingUp,
   FileText,
   Zap,
   Briefcase,

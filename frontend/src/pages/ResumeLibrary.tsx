@@ -14,7 +14,6 @@ import {
   Activity,
   Award,
   AlertCircle,
-  XCircle,
   Briefcase
 } from 'lucide-react';
 

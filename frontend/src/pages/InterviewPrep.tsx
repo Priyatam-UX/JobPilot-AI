@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest } from '../services/api';
 import {
@@ -9,7 +9,6 @@ import {
   ChevronRight,
   RefreshCw,
   CheckCircle,
-  XCircle,
   AlertCircle,
 } from 'lucide-react';
 
