@@ -1,12 +1,25 @@
 import { apiRequest } from './api';
 
+export interface JobSummary {
+  id: string;
+  title: string;
+  company_name?: string;
+  location?: string;
+  salary?: string;
+  source_portal?: string;
+  url?: string;
+}
+
 export interface ApplicationResponse {
   id: string;
+  user_id: string;
   job_id: string;
   status: string;
   notes?: string;
   applied_at?: string;
   created_at: string;
+  updated_at: string;
+  job?: JobSummary;   // Nested job details from backend
 }
 
 export const applicationService = {

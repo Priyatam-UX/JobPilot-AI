@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { applicationService } from '../services/applications';
-import { X } from 'lucide-react';
+import { X, Plus, ExternalLink } from 'lucide-react';
 
 interface KanbanColumn {
   id: string;
@@ -24,19 +24,12 @@ export function ApplicationTracker() {
     { id: 'rejected', name: 'Rejected', color: 'text-red-400 border-red-500/20', bg: 'bg-red-500/5' },
   ];
 
-  // Fetch list of applications and cast as any[] to handle title/companyName UI fields
-  const { data: applications } = useQuery<any[]>({
+  const { data: applications = [], isLoading } = useQuery<any[]>({
     queryKey: ['applications'],
     queryFn: async () => {
       const data = await applicationService.list();
       return data as any[];
     },
-    initialData: [
-      { id: 'app1', job_id: '1', title: 'Senior React Developer', companyName: 'Stripe', status: 'bookmarked', notes: 'Prepare referral' },
-      { id: 'app2', job_id: '2', title: 'Backend Staff Engineer (Python)', companyName: 'OpenAI', status: 'interview', notes: 'STAR method coding interview on Friday' },
-      { id: 'app3', job_id: '3', title: 'Staff Frontend Engineer', companyName: 'Vercel', status: 'applied', notes: 'Applied via Greenhouse' },
-      { id: 'app4', job_id: '4', title: 'Backend Software Engineer', companyName: 'Linear', status: 'offer', notes: 'Offer letter received' },
-    ] as any[],
   });
 
   const updateMutation = useMutation({
@@ -47,7 +40,7 @@ export function ApplicationTracker() {
     },
   });
 
-  // Drag and Drop implementation
+  // Drag and Drop
   const handleDragStart = (e: React.DragEvent, id: string) => {
     e.dataTransfer.setData('applicationId', id);
   };
@@ -76,8 +69,28 @@ export function ApplicationTracker() {
     }
   };
 
+  const getJobTitle = (app: any) => app.job?.title || 'Untitled Role';
+  const getCompany = (app: any) => app.job?.company_name || 'Unknown Company';
+  const getJobUrl = (app: any) => app.job?.url || app.job?.source_url || null;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col min-h-0 animate-fadeIn">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs text-slate-500">{applications.length} applications tracked</p>
+        <span className="text-xs text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+          Drag cards between columns to update status
+        </span>
+      </div>
+
       {/* Kanban Board Container */}
       <div className="flex-1 flex gap-4 overflow-x-auto pb-4 items-stretch min-h-0 select-none">
         {columns.map((col) => {
@@ -99,7 +112,7 @@ export function ApplicationTracker() {
                 </span>
               </div>
 
-              {/* Cards wrapper */}
+              {/* Cards */}
               <div className="flex-1 space-y-3 overflow-y-auto min-h-0 pr-1">
                 {colApps.map((app) => (
                   <div
@@ -109,17 +122,20 @@ export function ApplicationTracker() {
                     onClick={() => handleCardClick(app)}
                     className="p-4 rounded-xl bg-slate-900/60 border border-slate-900 hover:border-slate-800 hover:bg-slate-900 cursor-grab active:cursor-grabbing transition-all duration-300 shadow-md group relative overflow-hidden"
                   >
-                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <h4 className="text-xs font-semibold text-indigo-400 tracking-wider uppercase mb-1">
-                      {app.companyName || 'Stripe'}
+                      {getCompany(app)}
                     </h4>
                     <p className="text-sm font-bold text-white tracking-tight leading-snug group-hover:text-indigo-200 transition-colors duration-300">
-                      {app.title}
+                      {getJobTitle(app)}
                     </p>
                     {app.notes && (
                       <p className="text-[10px] text-slate-500 line-clamp-1 mt-2.5 bg-slate-950/40 px-2 py-1 rounded">
                         {app.notes}
                       </p>
+                    )}
+                    {app.job?.location && (
+                      <p className="text-[10px] text-slate-600 mt-1.5">{app.job.location}</p>
                     )}
                   </div>
                 ))}
@@ -152,11 +168,14 @@ export function ApplicationTracker() {
               <div className="space-y-6">
                 <div>
                   <span className="text-xs font-semibold text-indigo-400 px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/10">
-                    {selectedApp.companyName}
+                    {getCompany(selectedApp)}
                   </span>
                   <h2 className="text-2xl font-bold tracking-tight text-white mt-3">
-                    {selectedApp.title}
+                    {getJobTitle(selectedApp)}
                   </h2>
+                  {selectedApp.job?.salary && (
+                    <p className="text-sm text-emerald-400 font-semibold mt-1">{selectedApp.job.salary}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 py-4 border-y border-slate-900">
@@ -165,8 +184,45 @@ export function ApplicationTracker() {
                     <p className="text-sm text-slate-300 font-medium capitalize">{selectedApp.status}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Active Portal</p>
-                    <p className="text-sm text-slate-300 font-medium">LinkedIn</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Portal</p>
+                    <p className="text-sm text-slate-300 font-medium">{selectedApp.job?.source_portal || 'LinkedIn'}</p>
+                  </div>
+                  {selectedApp.job?.location && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Location</p>
+                      <p className="text-sm text-slate-300 font-medium">{selectedApp.job.location}</p>
+                    </div>
+                  )}
+                  {selectedApp.applied_at && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Applied On</p>
+                      <p className="text-sm text-slate-300 font-medium">
+                        {new Date(selectedApp.applied_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Move to status buttons */}
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Move to Stage</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['applying', 'applied', 'interview', 'offer', 'rejected'].map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => {
+                          updateMutation.mutate({ id: selectedApp.id, data: { status: s } });
+                          setSelectedApp((prev: any) => ({ ...prev, status: s }));
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
+                          selectedApp.status === s
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
@@ -174,7 +230,7 @@ export function ApplicationTracker() {
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Application Notes</label>
                   <textarea
-                    rows={6}
+                    rows={5}
                     placeholder="Add follow-up dates, interviewer names, or prep tasks..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
@@ -190,13 +246,23 @@ export function ApplicationTracker() {
               </div>
             </div>
 
-            {/* Slideout footer actions */}
-            <div className="pt-6 border-t border-slate-900 mt-8 flex justify-end">
+            <div className="pt-6 border-t border-slate-900 mt-8 flex justify-between">
+              {getJobUrl(selectedApp) && (
+                <a
+                  href={getJobUrl(selectedApp)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-5 py-2.5 border border-indigo-800/50 hover:bg-indigo-950/30 text-indigo-400 hover:text-indigo-300 rounded-xl text-xs font-semibold transition-all flex items-center gap-2"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  View Job Posting
+                </a>
+              )}
               <button
                 onClick={() => setSelectedApp(null)}
                 className="px-5 py-2.5 border border-slate-800 hover:bg-slate-900 text-slate-400 hover:text-slate-200 rounded-xl text-xs font-semibold transition-all"
               >
-                Close Details
+                Close
               </button>
             </div>
           </div>

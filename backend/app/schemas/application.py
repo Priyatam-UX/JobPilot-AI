@@ -18,6 +18,27 @@ class ApplicationUpdate(BaseModel):
     cover_letter_id: Optional[uuid.UUID] = None
 
 
+class JobSummary(BaseModel):
+    """Embedded job details returned with each application."""
+    id: uuid.UUID
+    title: str
+    company_name: Optional[str] = None
+    location: Optional[str] = None
+    salary: Optional[str] = None
+    source_portal: Optional[str] = None
+    url: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+    @classmethod
+    def model_validate(cls, obj, **kwargs):
+        instance = super().model_validate(obj, **kwargs)
+        # Map source_url → url for frontend compatibility
+        if instance.url is None and hasattr(obj, "source_url"):
+            instance.url = obj.source_url
+        return instance
+
+
 class ApplicationResponse(BaseModel):
     id: uuid.UUID
     user_id: uuid.UUID
@@ -27,6 +48,8 @@ class ApplicationResponse(BaseModel):
     notes: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+    # Embedded job details so frontend can display title + company without extra calls
+    job: Optional[JobSummary] = None
 
     model_config = {"from_attributes": True}
 
