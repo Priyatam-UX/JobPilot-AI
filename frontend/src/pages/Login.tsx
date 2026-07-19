@@ -156,7 +156,7 @@ export function Login() {
               Google
             </button>
             <button
-              onClick={() => handleOAuth('github')}
+              onClick={() => setError('GitHub login coming soon. Please use email or Google.')}
               disabled={loading}
               className="flex items-center justify-center gap-2.5 py-2.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 rounded-xl text-slate-300 text-sm transition-all duration-300"
             >
