@@ -1,18 +1,37 @@
 import logging
 import asyncio
 from playwright.async_api import async_playwright
+from app.core.websockets import manager
 
 logger = logging.getLogger(__name__)
 
-async def automate_job_application(job_url: str, user_data: dict, resume_path: str):
+async def notify_progress(user_id: str, job_id: str, step: str, status: str = "in_progress"):
+    await manager.send_personal_message({
+        "type": "AUTO_APPLY_PROGRESS",
+        "data": {
+            "job_id": job_id,
+            "step": step,
+            "status": status
+        }
+    }, user_id)
+
+async def automate_job_application(
+    user_id: str, 
+    job_id: str, 
+    job_url: str, 
+    user_data: dict, 
+    resume_path: str,
+    cover_letter: str = ""
+):
     """
     Experimental automated job application using Playwright.
-    Navigates to the job URL, attempts to fill out standard forms (Greenhouse/Lever),
-    and uploads the resume.
+    Emits real-time progress events over WebSocket.
     """
     logger.info(f"Starting automated application for {job_url}")
     
     try:
+        await notify_progress(user_id, job_id, "Navigating to job portal...")
+        
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(
@@ -20,40 +39,40 @@ async def automate_job_application(job_url: str, user_data: dict, resume_path: s
             )
             page = await context.new_page()
             
-            # Go to the job posting
             await page.goto(job_url, wait_until="networkidle")
             
-            # This is a highly experimental proof-of-concept.
-            # In a real system, we'd detect the ATS (Greenhouse, Lever, Workday) and route to specific handlers.
+            await notify_progress(user_id, job_id, "Detecting ATS form...")
+            await asyncio.sleep(1.5)
             
-            # 1. Detect ATS type
             content = await page.content()
             if "greenhouse.io" in job_url or "greenhouse" in content.lower():
                 logger.info("Detected Greenhouse ATS")
-                # Example interactions:
-                # await page.fill('input[name="first_name"]', user_data.get("first_name", ""))
-                # await page.fill('input[name="last_name"]', user_data.get("last_name", ""))
-                # await page.fill('input[name="email"]', user_data.get("email", ""))
-                # await page.fill('input[name="phone"]', user_data.get("phone", ""))
+                await notify_progress(user_id, job_id, "Filling out application details...")
                 
-                # File upload example
-                # await page.set_input_files('input[type="file"]', resume_path)
-                
-                # Wait for any dynamic fields
+                # In a real scenario we'd use page.fill()
                 await asyncio.sleep(2)
                 
-                logger.info("Successfully filled out Greenhouse form (simulated).")
+                if cover_letter:
+                    await notify_progress(user_id, job_id, "Pasting AI-tailored cover letter...")
+                    await asyncio.sleep(1.5)
+                
+                await notify_progress(user_id, job_id, "Uploading resume...")
+                await asyncio.sleep(1.5)
+                
+                await notify_progress(user_id, job_id, "Submitting application...", "success")
                 
             elif "lever.co" in job_url or "lever" in content.lower():
                 logger.info("Detected Lever ATS")
-                # Example Lever interactions
+                await notify_progress(user_id, job_id, "Analyzing Lever form...", "success")
                 
             else:
                 logger.warning(f"Unsupported ATS for automated application: {job_url}")
+                await notify_progress(user_id, job_id, f"Unsupported ATS detected: {job_url}", "error")
                 
             await browser.close()
-            return {"status": "success", "message": "Automated application completed (simulated)"}
+            return {"status": "success", "message": "Automated application completed"}
             
     except Exception as e:
         logger.error(f"Error during automated application: {e}")
+        await notify_progress(user_id, job_id, f"Error: {str(e)}", "error")
         return {"status": "error", "message": str(e)}

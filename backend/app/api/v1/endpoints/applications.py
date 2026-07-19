@@ -83,27 +83,53 @@ def get_status_counts(
     return service.get_status_counts(current_user.id)
 
 from pydantic import BaseModel
-from app.services.automation_service import automate_job_application
+from app.tasks.intelligence_tasks import run_auto_apply_pipeline
+from app.models.resume import Resume
+from fastapi import HTTPException
 
 class AutomateRequest(BaseModel):
+    job_id: str
     job_url: str
-    resume_path: str
+    job_description: str
 
 @router.post("/automate")
 async def trigger_automation(
     payload: AutomateRequest,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     """
-    Experimental: Trigger a Playwright headless browser to auto-fill a job application.
+    Trigger the full AI Auto-Apply pipeline (Tailor -> Automate).
     """
-    # In production, we'd fetch the user's saved profile data (name, email, phone, etc.)
+    # Fetch user's latest resume
+    resume = (
+        db.query(Resume)
+        .filter(Resume.user_id == current_user.id)
+        .order_by(Resume.created_at.desc())
+        .first()
+    )
+    
+    if not resume:
+        raise HTTPException(status_code=400, detail="No resume uploaded. Please upload a resume first.")
+        
     user_data = {
-        "first_name": "Test",
-        "last_name": "User",
+        "first_name": current_user.full_name.split()[0] if current_user.full_name else "Applicant",
+        "last_name": current_user.full_name.split()[-1] if current_user.full_name and " " in current_user.full_name else "",
         "email": current_user.email,
         "phone": "555-0199"
     }
     
-    result = await automate_job_application(payload.job_url, user_data, payload.resume_path)
-    return result
+    # Run in background
+    background_tasks.add_task(
+        run_auto_apply_pipeline,
+        str(current_user.id),
+        payload.job_id,
+        payload.job_url,
+        payload.job_description,
+        resume.raw_text,
+        user_data,
+        resume.file_path
+    )
+    
+    return {"status": "accepted", "message": "Auto-apply pipeline started in background"}

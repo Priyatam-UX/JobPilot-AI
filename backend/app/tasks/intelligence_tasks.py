@@ -39,3 +39,53 @@ async def run_resume_analysis_background(db: Session, user_id: str, resume_id: s
             
     except Exception as e:
         logger.error(f"Error in background resume analysis: {e}")
+
+from app.services.tailoring_service import generate_tailored_cover_letter
+from app.services.automation_service import automate_job_application
+
+async def run_auto_apply_pipeline(
+    user_id: str, 
+    job_id: str, 
+    job_url: str, 
+    job_description: str,
+    resume_text: str,
+    user_data: dict,
+    resume_path: str
+):
+    """
+    Background pipeline for auto-apply:
+    1. Tailor cover letter via LLM
+    2. Pass to Playwright automation script
+    """
+    logger.info(f"Starting auto-apply pipeline for job {job_id}")
+    
+    try:
+        # Step 1: Tailor cover letter
+        await manager.send_personal_message({
+            "type": "AUTO_APPLY_PROGRESS",
+            "data": {"job_id": job_id, "step": "AI is writing tailored cover letter...", "status": "in_progress"}
+        }, user_id)
+        
+        # Run sync block in thread pool to not block asyncio
+        cover_letter = await asyncio.to_thread(
+            generate_tailored_cover_letter,
+            resume_text,
+            job_description
+        )
+        
+        # Step 2: Execute automation
+        await automate_job_application(
+            user_id=user_id,
+            job_id=job_id,
+            job_url=job_url,
+            user_data=user_data,
+            resume_path=resume_path,
+            cover_letter=cover_letter
+        )
+        
+    except Exception as e:
+        logger.error(f"Auto-apply pipeline failed: {e}")
+        await manager.send_personal_message({
+            "type": "AUTO_APPLY_PROGRESS",
+            "data": {"job_id": job_id, "step": f"Pipeline failed: {str(e)}", "status": "error"}
+        }, user_id)

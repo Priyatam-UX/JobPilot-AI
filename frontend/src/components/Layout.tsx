@@ -11,6 +11,7 @@ import {
   LogOut,
   Sparkles,
 } from 'lucide-react';
+import { ChatBot } from './ChatBot';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -114,6 +115,9 @@ export function Layout({ children }: LayoutProps) {
           {children}
         </main>
       </div>
+
+      {/* Global AI Assistant Widget */}
+      <ChatBot />
     </div>
   );
 }

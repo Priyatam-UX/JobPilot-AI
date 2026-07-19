@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { jobService, JobResponse } from '../services/jobs';
 import { applicationService } from '../services/applications';
+import { useWebSocket } from '../context/WebSocketContext';
+import { AutoApplyModal } from './AutoApplyModal';
 import {
   Search,
   Filter,
@@ -15,12 +17,27 @@ import {
   AlertCircle,
   Loader2,
   RefreshCw,
+  Rocket
 } from 'lucide-react';
 
 export function JobDiscovery() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeJob, setActiveJob] = useState<JobResponse | null>(null);
+  
+  // Auto Apply State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [autoApplyStatus, setAutoApplyStatus] = useState<'idle' | 'in_progress' | 'success' | 'error'>('idle');
+  const [autoApplyStep, setAutoApplyStep] = useState('');
+  const { lastMessage } = useWebSocket();
+
+  // Listen to WebSocket events for Auto Apply progress
+  useEffect(() => {
+    if (lastMessage?.type === 'AUTO_APPLY_PROGRESS' && activeJob?.id === lastMessage.data.job_id) {
+      setAutoApplyStep(lastMessage.data.step);
+      setAutoApplyStatus(lastMessage.data.status);
+    }
+  }, [lastMessage, activeJob]);
 
   // Fetch live jobs from backend (which fetches from Remotive + scores against resume)
   const { data: jobs = [], isLoading, refetch, isRefetching } = useQuery<JobResponse[]>({
@@ -49,9 +66,38 @@ export function JobDiscovery() {
     },
   });
 
+  const autoApplyMutation = useMutation({
+    mutationFn: async (job: JobResponse) => {
+      // 1. Ensure job exists in DB
+      const savedJob = await saveJobMutation.mutateAsync(job);
+      
+      // 2. Trigger the pipeline
+      return applicationService.automate({
+        job_id: savedJob.id,
+        job_url: job.url || '',
+        job_description: job.description || '',
+      });
+    },
+    onSuccess: () => {
+      // Modal handles the live WS updates
+    },
+    onError: (error: any) => {
+      setAutoApplyStatus('error');
+      setAutoApplyStep(error.response?.data?.detail || 'Failed to start pipeline');
+    }
+  });
+
   const handleBookmark = (e: React.MouseEvent, job: JobResponse) => {
     e.stopPropagation();
     bookmarkMutation.mutate(job);
+  };
+  
+  const handleAutoApply = () => {
+    if (!activeJob) return;
+    setIsModalOpen(true);
+    setAutoApplyStatus('in_progress');
+    setAutoApplyStep('Initializing Auto Apply pipeline...');
+    autoApplyMutation.mutate(activeJob);
   };
 
   const filteredJobs = jobs.filter(
@@ -62,6 +108,14 @@ export function JobDiscovery() {
 
   return (
     <div className="h-full flex flex-col min-h-0 animate-fadeIn relative space-y-6">
+      <AutoApplyModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        jobTitle={activeJob?.title || ''}
+        progressStep={autoApplyStep}
+        status={autoApplyStatus}
+      />
+
       {/* Header & Search */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between shrink-0">
         <div>
@@ -200,6 +254,14 @@ export function JobDiscovery() {
                   >
                     <Bookmark className="w-4 h-4" />
                     Save
+                  </button>
+                  <button
+                    onClick={handleAutoApply}
+                    disabled={autoApplyMutation.isPending}
+                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-bold shadow-md shadow-orange-500/20 transition-all flex items-center gap-2"
+                  >
+                    <Rocket className="w-4 h-4" />
+                    Auto Apply
                   </button>
                   {activeJob.url && (
                     <a
