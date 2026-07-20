@@ -29,7 +29,7 @@ export function Layout({ children }: LayoutProps) {
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { name: 'Resume Library', path: '/resumes', icon: FileText },
+    { name: 'Resume Checker', path: '/resumes', icon: FileText },
     { name: 'Job Discovery', path: '/jobs', icon: Search },
     { name: 'Application Tracker', path: '/tracker', icon: Trello },
     { name: 'Interview Prep', path: '/interview', icon: FileQuestion },
