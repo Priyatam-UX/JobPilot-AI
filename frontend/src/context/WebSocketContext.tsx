@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '../store/authStore';
 
 interface WebSocketContextType {
   isConnected: boolean;
@@ -13,65 +14,97 @@ const WebSocketContext = createContext<WebSocketContextType>({
 
 export const useWebSocket = () => useContext(WebSocketContext);
 
+// Base URL handling for Render production deployment
+const WS_BASE_URL = 'wss://jobpilot-backend-l4o2.onrender.com/api/v1/ws';
+
 export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState<any>(null);
   const queryClient = useQueryClient();
+  const { user, isAuthenticated } = useAuthStore();
+  const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    // In production, we'd grab the user ID from auth context. For now, we use a mock one.
-    const userId = "00000000-0000-0000-0000-000000000000"; 
-    
-    // Connect to WebSocket using the current host, handling dev/prod environments
-    const wsUrl = import.meta.env.VITE_API_URL 
-      ? import.meta.env.VITE_API_URL.replace('http', 'ws') + `/ws/${userId}`
-      : `ws://localhost:8000/api/v1/ws/${userId}`;
-
-    const ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {
-      console.log('WebSocket Connected');
-      setIsConnected(true);
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket Disconnected');
-      setIsConnected(false);
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        console.log('WS Message:', message);
-        setLastMessage(message);
-
-        // Auto-invalidate TanStack Query caches based on events to enable true real-time UI
-        switch (message.type) {
-          case 'APPLICATION_CREATED':
-          case 'APPLICATION_UPDATED':
-          case 'APPLICATION_DELETED':
-            // Instead of 60s polling, we invalidate immediately!
-            queryClient.invalidateQueries({ queryKey: ['applications'] });
-            queryClient.invalidateQueries({ queryKey: ['applicationCounts'] });
-            break;
-          case 'RESUME_ANALYZED':
-            queryClient.invalidateQueries({ queryKey: ['resumes'] });
-            break;
-          case 'JOB_DISCOVERED':
-            queryClient.invalidateQueries({ queryKey: ['discoverJobs'] });
-            break;
-          default:
-            break;
-        }
-      } catch (e) {
-        console.error('Failed to parse WS message', e);
+    if (!isAuthenticated || !user?.id) {
+      if (ws.current) {
+        ws.current.close();
+        ws.current = null;
       }
+      return;
+    }
+
+    let reconnectTimeout: ReturnType<typeof setTimeout>;
+
+    const connect = () => {
+      if (ws.current?.readyState === WebSocket.OPEN) return;
+
+      const wsUrl = `${WS_BASE_URL}/${user.id}`;
+      ws.current = new WebSocket(wsUrl);
+
+      ws.current.onopen = () => {
+        console.log('WebSocket Connected');
+        setIsConnected(true);
+      };
+
+      ws.current.onclose = () => {
+        console.log('WebSocket Disconnected');
+        setIsConnected(false);
+        ws.current = null;
+        // Exponential backoff reconnect could be added here
+        reconnectTimeout = setTimeout(connect, 3000);
+      };
+
+      ws.current.onerror = (error) => {
+        console.error('WebSocket Error:', error);
+        ws.current?.close();
+      };
+
+      ws.current.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          console.log('WS Message:', message);
+          setLastMessage(message);
+
+          // Auto-invalidate TanStack Query caches based on events to enable true real-time UI
+          switch (message.type) {
+            case 'APPLICATION_CREATED':
+            case 'APPLICATION_UPDATED':
+            case 'APPLICATION_DELETED':
+              queryClient.invalidateQueries({ queryKey: ['applications'] });
+              queryClient.invalidateQueries({ queryKey: ['applicationCounts'] });
+              queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+              break;
+            case 'RESUME_ANALYZED':
+            case 'RESUME_DELETED':
+              queryClient.invalidateQueries({ queryKey: ['resumes'] });
+              queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+              break;
+            case 'JOB_DISCOVERED':
+              queryClient.invalidateQueries({ queryKey: ['discoverJobs'] });
+              queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+              break;
+            case 'DASHBOARD_UPDATE':
+              queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+              break;
+            default:
+              break;
+          }
+        } catch (e) {
+          console.error('Failed to parse WS message', e);
+        }
+      };
     };
+
+    connect();
 
     return () => {
-      ws.close();
+      clearTimeout(reconnectTimeout);
+      if (ws.current) {
+        ws.current.close();
+        ws.current = null;
+      }
     };
-  }, [queryClient]);
+  }, [user?.id, isAuthenticated, queryClient]);
 
   return (
     <WebSocketContext.Provider value={{ isConnected, lastMessage }}>

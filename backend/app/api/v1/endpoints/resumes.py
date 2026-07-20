@@ -148,12 +148,15 @@ def ats_check_against_job(
 @router.delete("/{resume_id}", status_code=204)
 def delete_resume(
     resume_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Delete a resume and all its versions."""
     service = ResumeService(db)
     service.delete_resume(resume_id, current_user.id)
+    from app.core.websockets import manager
+    background_tasks.add_task(manager.send_personal_message, {"type": "RESUME_DELETED"}, str(current_user.id))
 
 
 @router.get("/{resume_id}/versions", response_model=List[ResumeVersionResponse])
