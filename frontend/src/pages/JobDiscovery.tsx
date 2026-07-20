@@ -5,6 +5,7 @@ import { applicationService } from '../services/applications';
 import { useWebSocket } from '../context/WebSocketContext';
 import { AutoApplyModal } from '../components/AutoApplyModal';
 import { motion } from 'framer-motion';
+import { TiltCard } from '../components/TiltCard';
 import {
   Search,
   Filter,
@@ -167,18 +168,21 @@ export function JobDiscovery() {
           ) : (
             jobs.map((job, index) => (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: index * 0.1, type: "spring" }}
                 key={job.id}
-                onClick={() => setActiveJob(job)}
-                className={`p-5 rounded-2xl cursor-pointer transition-all duration-300 border ${
-                  activeJob?.id === job.id
-                    ? 'bg-indigo-950/20 border-indigo-500/40 shadow-md shadow-indigo-500/5'
-                    : 'bg-slate-950/60 border-slate-900 hover:border-slate-800 hover:bg-slate-900/80'
-                }`}
+                style={{ perspective: 1000 }}
               >
+                <TiltCard
+                  onClick={() => setActiveJob(job)}
+                  className={`p-5 rounded-2xl cursor-pointer border ${
+                    activeJob?.id === job.id
+                      ? 'border-indigo-500/50 bg-indigo-500/10 shadow-[0_0_30px_rgba(99,102,241,0.15)]'
+                      : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800/50 hover:border-slate-700'
+                  }`}
+                >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1">
                     <h3 className="font-bold text-white text-sm leading-snug truncate pr-2">
@@ -230,7 +234,7 @@ export function JobDiscovery() {
                       style={{ width: `${job.match_score || 0}%` }}
                     />
                   </div>
-                </div>
+                </TiltCard>
               </motion.div>
             ))
           )}

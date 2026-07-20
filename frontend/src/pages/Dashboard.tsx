@@ -13,6 +13,7 @@ import {
   Activity,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 interface DashboardSummary {
   applications: Record<string, number>;
@@ -81,10 +82,28 @@ export function Dashboard() {
     suggestions.push({ title: 'Prepare for Interviews', desc: 'Practice behavioral and technical questions with AI-powered STAR method feedback.', action: 'Start Prep', link: '/interview' });
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="space-y-8 animate-fadeIn">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-8"
+    >
       {/* Welcome Banner */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-950 border border-slate-800 p-8 shadow-xl">
+      <motion.div variants={itemVariants} className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-950 border border-slate-800 p-8 shadow-xl">
         <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-[radial-gradient(circle_at_bottom_right,_var(--tw-gradient-stops))] from-indigo-500/10 via-violet-500/5 to-transparent blur-xl pointer-events-none" />
         <div className="relative max-w-2xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 rounded-full text-xs font-semibold text-indigo-400 border border-indigo-500/20 mb-4">
@@ -110,14 +129,14 @@ export function Dashboard() {
             </Link>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Grid Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
-            <div key={i} className="glass rounded-2xl p-6 shadow-md transition-all duration-300 hover:scale-[1.02]">
+            <motion.div variants={itemVariants} key={i} className="glass rounded-2xl p-6 shadow-md transition-all duration-300 hover:scale-[1.02]">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{stat.name}</span>
                 <div className={`p-2.5 rounded-xl ${stat.bg}`}>
@@ -131,7 +150,7 @@ export function Dashboard() {
                 <CheckCircle className="w-3.5 h-3.5 text-indigo-400" />
                 Live from database
               </p>
-            </div>
+            </motion.div>
           );
         })}
       </div>
@@ -139,7 +158,7 @@ export function Dashboard() {
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Copilot Suggestions Panel */}
-        <div className="glass rounded-3xl p-6 shadow-md lg:col-span-2 flex flex-col">
+        <motion.div variants={itemVariants} className="glass rounded-3xl p-6 shadow-md lg:col-span-2 flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-indigo-400" />
@@ -184,10 +203,10 @@ export function Dashboard() {
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Analytics Card */}
-        <div className="glass rounded-3xl p-6 shadow-md flex flex-col justify-between">
+        <motion.div variants={itemVariants} className="glass rounded-3xl p-6 shadow-md flex flex-col justify-between">
           <div>
             <h3 className="text-lg font-bold tracking-tight text-white mb-6">Application Metrics</h3>
             <div className="space-y-5">
@@ -232,8 +251,8 @@ export function Dashboard() {
                 : 'Start applying to jobs to see your analytics here.'}
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
