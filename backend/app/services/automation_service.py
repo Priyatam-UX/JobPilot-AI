@@ -33,7 +33,18 @@ async def automate_job_application(
         await notify_progress(user_id, job_id, "Navigating to job portal...")
         
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+            try:
+                browser = await p.chromium.launch(headless=True)
+            except Exception as e:
+                if "Executable doesn't exist" in str(e):
+                    logger.warning("Playwright browsers not found. Installing chromium now...")
+                    await notify_progress(user_id, job_id, "Installing automation dependencies (first run only)...")
+                    import os
+                    os.system("playwright install chromium")
+                    browser = await p.chromium.launch(headless=True)
+                else:
+                    raise e
+                    
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             )
