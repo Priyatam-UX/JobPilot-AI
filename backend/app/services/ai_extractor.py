@@ -42,8 +42,8 @@ def extract_resume_data_with_ai(raw_text: str) -> dict:
     Returns a dictionary mapping exactly to ResumeExtractionSchema.
     """
     if not settings.OPENAI_API_KEY:
-        logger.warning("OPENAI_API_KEY not set. Falling back to empty extraction.")
-        return get_fallback_extraction()
+        logger.warning("OPENAI_API_KEY not set. Falling back to offline extraction.")
+        return get_fallback_extraction(raw_text)
         
     try:
         llm = ChatOpenAI(
@@ -84,18 +84,25 @@ def extract_resume_data_with_ai(raw_text: str) -> dict:
         
     except Exception as e:
         logger.error(f"AI Extraction failed: {e}")
-        return get_fallback_extraction()
+        return get_fallback_extraction(raw_text)
 
 
-def get_fallback_extraction():
+def get_fallback_extraction(raw_text: str):
+    """
+    Fallback to offline regex-based extraction if OpenAI is unavailable or out of quota.
+    This ensures the ATS scoring algorithm still receives valid data.
+    """
+    from app.services.skill_extractor import extract_all
+    fallback_data = extract_all(raw_text)
+    
     return {
-        "skills": {},
-        "all_skills_flat": [],
-        "contact": {},
-        "sections": {},
-        "education": [],
-        "experience": [],
-        "experience_years": 0.0,
-        "word_count": 0,
+        "skills": fallback_data.get("skills", {}),
+        "all_skills_flat": fallback_data.get("all_skills_flat", []),
+        "contact": fallback_data.get("contact", {}),
+        "sections": fallback_data.get("sections", {}),
+        "education": fallback_data.get("education", []),
+        "experience": [], # Offline extractor doesn't parse full bullets yet
+        "experience_years": fallback_data.get("experience_years", 0.0),
+        "word_count": fallback_data.get("word_count", 0),
         "summary": None
     }
