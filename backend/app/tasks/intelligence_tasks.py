@@ -8,15 +8,20 @@ from app.models.resume import Resume
 
 logger = logging.getLogger(__name__)
 
+from app.services.ats_service import compute_ats_score
+
 async def run_resume_analysis_background(db: Session, user_id: str, resume_id: str, raw_text: str):
     """
-    Run heavy NLP extraction and OpenAI embedding in the background.
+    Run heavy NLP extraction, ATS scoring, and OpenAI embedding in the background.
     """
     try:
         # Extract skills and structure via OpenAI
         analysis = extract_resume_data_with_ai(raw_text)
         exp_years = analysis["experience_years"]
         skills = analysis["all_skills_flat"]
+        
+        # Compute baseline ATS score
+        ats_report = compute_ats_score(raw_text)
         
         # Generate 1536-dimensional semantic embedding based on skills + summary
         summary = analysis.get("summary") or ""
@@ -28,6 +33,9 @@ async def run_resume_analysis_background(db: Session, user_id: str, resume_id: s
             resume.experience_years = exp_years
             resume.all_skills_flat = skills
             resume.embedding = vector
+            resume.ats_score = ats_report["overall_score"]
+            resume.ats_grade = ats_report["grade"]
+            resume.ats_suggestions = ats_report["suggestions"]
             db.commit()
             
             logger.info(f"Background analysis completed for resume {resume_id}")
@@ -38,7 +46,8 @@ async def run_resume_analysis_background(db: Session, user_id: str, resume_id: s
                 "data": {
                     "resume_id": str(resume_id),
                     "experience_years": exp_years,
-                    "skills_count": len(skills)
+                    "skills_count": len(skills),
+                    "ats_score": ats_report["overall_score"]
                 }
             }, user_id)
             
