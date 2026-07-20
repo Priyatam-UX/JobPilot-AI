@@ -19,8 +19,8 @@ export function TiltCard({ children, className = '', onClick, ...props }: TiltCa
 
   // Map mouse position to rotation degrees
   // Adjust these values to increase/decrease the "tilt" severity
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["3deg", "-3deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-3deg", "3deg"]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
@@ -59,12 +59,12 @@ export function TiltCard({ children, className = '', onClick, ...props }: TiltCa
         transformStyle: "preserve-3d",
       }}
       className={`relative transition-shadow duration-300 ${className}`}
-      whileHover={{ zIndex: 10, scale: 1.02 }}
+      whileHover={{ zIndex: 10, scale: 1.01 }}
       {...props}
     >
       <div 
         className="w-full h-full"
-        style={{ transform: "translateZ(30px)" }}
+        style={{ transform: "translateZ(10px)" }}
       >
         {children}
       </div>

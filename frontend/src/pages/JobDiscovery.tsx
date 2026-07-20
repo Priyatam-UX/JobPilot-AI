@@ -184,7 +184,7 @@ export function JobDiscovery() {
                   }`}
                 >
                 <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-white text-sm leading-snug truncate pr-2">
                       {job.title}
                     </h3>
