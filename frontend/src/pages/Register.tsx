@@ -4,6 +4,7 @@ import { authService } from '../services/auth';
 import { useAuthStore } from '../store/authStore';
 import { Sparkles, Mail, Lock, User, Loader2 } from 'lucide-react';
 import { TiltCard } from '../components/TiltCard';
+import { ParticleBackground } from '../components/ParticleBackground';
 
 export function Register() {
   const navigate = useNavigate();
@@ -35,12 +36,16 @@ export function Register() {
   };
 
   return (
-    <div className="min-h-screen w-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 p-4 font-sans">
-      <div className="w-full max-w-md relative">
+    <div className="min-h-screen w-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 p-4 font-sans relative overflow-hidden">
+      
+      {/* Interactive Particle Background */}
+      <ParticleBackground particleCount={80} speed={0.4} />
+
+      <div className="w-full max-w-md relative z-10 pointer-events-none">
         <div className="absolute -top-16 -left-16 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-violet-500/20 rounded-full blur-3xl"></div>
 
-        <TiltCard className="glass rounded-3xl p-8 shadow-2xl relative overflow-visible">
+        <TiltCard className="glass rounded-3xl p-8 shadow-2xl relative overflow-visible pointer-events-auto">
           <div className="flex flex-col items-center mb-8">
             <div className="w-12 h-12 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/30 mb-3">
               <Sparkles className="w-6 h-6 text-indigo-400" />

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatBot } from './ChatBot';
+import { ParticleBackground } from './ParticleBackground';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -41,8 +42,10 @@ export function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 font-sans">
+    <div className="flex h-screen w-screen overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 font-sans relative">
       
+      {/* Subtle App-wide Particle Background */}
+      <ParticleBackground particleCount={40} opacity={0.5} speed={0.2} connectionDistance={100} mouseRepelRadius={200} />
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
