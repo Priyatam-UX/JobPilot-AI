@@ -42,13 +42,21 @@ export function ResumeLibrary() {
     mutationFn: ({ title, file }: { title: string; file: File }) => resumeService.upload(title, file),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['resumes'] });
-      // Wait for scan animation to finish before showing results
-      setTimeout(() => {
+      
+      // The backend processes the ATS score in a background task. 
+      // We wait for the scanning animation (4s) which gives the backend plenty of time to finish,
+      // then we fetch the updated resume data before showing the results.
+      setTimeout(async () => {
+        try {
+          const updatedResume = await resumeService.get(data.id);
+          setActiveResume(updatedResume);
+        } catch (e) {
+          setActiveResume(data); // fallback
+        }
         setIsScanning(false);
-        setActiveResume(data);
         setSelectedFile(null);
         setResumeTitle('');
-      }, 4000); // 4 second fake scan delay for effect
+      }, 4500); // 4.5 second scan delay
     },
     onError: (err: any) => {
       setError(err.message || 'Failed to upload resume');
