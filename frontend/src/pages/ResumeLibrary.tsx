@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resumeService, ResumeResponse } from '../services/resumes';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Upload,
   FileText,
   Trash2,
   Sparkles,
@@ -34,7 +33,7 @@ export function ResumeLibrary() {
   // UI State
   const [showHistory, setShowHistory] = useState(false);
 
-  const { data: resumes = [], isLoading } = useQuery({
+  const { data: resumes = [] } = useQuery({
     queryKey: ['resumes'],
     queryFn: resumeService.list,
   });
