@@ -1,13 +1,13 @@
 import React, { useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, HTMLMotionProps } from 'framer-motion';
 
-interface TiltCardProps {
+interface TiltCardProps extends HTMLMotionProps<"div"> {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
 }
 
-export function TiltCard({ children, className = '', onClick }: TiltCardProps) {
+export function TiltCard({ children, className = '', onClick, ...props }: TiltCardProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const x = useMotionValue(0);
@@ -60,6 +60,7 @@ export function TiltCard({ children, className = '', onClick }: TiltCardProps) {
       }}
       className={`relative transition-shadow duration-300 ${className}`}
       whileHover={{ zIndex: 10, scale: 1.02 }}
+      {...props}
     >
       <div 
         className="w-full h-full"

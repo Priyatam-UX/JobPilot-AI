@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
+import { TiltCard } from '../components/TiltCard';
 
 interface DashboardSummary {
   applications: Record<string, number>;
@@ -103,7 +104,7 @@ export function Dashboard() {
       className="space-y-8"
     >
       {/* Welcome Banner */}
-      <motion.div variants={itemVariants} className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-950 border border-slate-800 p-8 shadow-xl">
+      <TiltCard variants={itemVariants} className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-950 border border-slate-800 p-8 shadow-xl">
         <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-[radial-gradient(circle_at_bottom_right,_var(--tw-gradient-stops))] from-indigo-500/10 via-violet-500/5 to-transparent blur-xl pointer-events-none" />
         <div className="relative max-w-2xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 rounded-full text-xs font-semibold text-indigo-400 border border-indigo-500/20 mb-4">
@@ -129,14 +130,14 @@ export function Dashboard() {
             </Link>
           </div>
         </div>
-      </motion.div>
+      </TiltCard>
 
       {/* Grid Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
-            <motion.div variants={itemVariants} key={i} className="glass rounded-2xl p-6 shadow-md transition-all duration-300 hover:scale-[1.02]">
+            <TiltCard variants={itemVariants} key={i} className="glass rounded-2xl p-6 shadow-md transition-all duration-300 hover:scale-[1.02]">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{stat.name}</span>
                 <div className={`p-2.5 rounded-xl ${stat.bg}`}>
@@ -150,7 +151,7 @@ export function Dashboard() {
                 <CheckCircle className="w-3.5 h-3.5 text-indigo-400" />
                 Live from database
               </p>
-            </motion.div>
+            </TiltCard>
           );
         })}
       </div>
@@ -158,7 +159,7 @@ export function Dashboard() {
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Copilot Suggestions Panel */}
-        <motion.div variants={itemVariants} className="glass rounded-3xl p-6 shadow-md lg:col-span-2 flex flex-col">
+        <TiltCard variants={itemVariants} className="glass rounded-3xl p-6 shadow-md lg:col-span-2 flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-indigo-400" />
@@ -203,10 +204,10 @@ export function Dashboard() {
               </div>
             </div>
           )}
-        </motion.div>
+        </TiltCard>
 
         {/* Analytics Card */}
-        <motion.div variants={itemVariants} className="glass rounded-3xl p-6 shadow-md flex flex-col justify-between">
+        <TiltCard variants={itemVariants} className="glass rounded-3xl p-6 shadow-md flex flex-col justify-between">
           <div>
             <h3 className="text-lg font-bold tracking-tight text-white mb-6">Application Metrics</h3>
             <div className="space-y-5">
@@ -251,7 +252,7 @@ export function Dashboard() {
                 : 'Start applying to jobs to see your analytics here.'}
             </p>
           </div>
-        </motion.div>
+        </TiltCard>
       </div>
     </motion.div>
   );

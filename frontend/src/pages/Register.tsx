@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/auth';
 import { useAuthStore } from '../store/authStore';
 import { Sparkles, Mail, Lock, User, Loader2 } from 'lucide-react';
+import { TiltCard } from '../components/TiltCard';
 
 export function Register() {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export function Register() {
         <div className="absolute -top-16 -left-16 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-violet-500/20 rounded-full blur-3xl"></div>
 
-        <div className="glass rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+        <TiltCard className="glass rounded-3xl p-8 shadow-2xl relative overflow-visible">
           <div className="flex flex-col items-center mb-8">
             <div className="w-12 h-12 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/30 mb-3">
               <Sparkles className="w-6 h-6 text-indigo-400" />
@@ -115,7 +116,7 @@ export function Register() {
               Sign in
             </Link>
           </p>
-        </div>
+        </TiltCard>
       </div>
     </div>
   );
