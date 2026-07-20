@@ -19,7 +19,8 @@ import {
   AlertCircle,
   Loader2,
   RefreshCw,
-  Rocket
+  Rocket,
+  ArrowLeft
 } from 'lucide-react';
 
 export function JobDiscovery() {
@@ -153,9 +154,9 @@ export function JobDiscovery() {
       </div>
 
       {/* Main Layout */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 min-h-0">
-        {/* Jobs List */}
-        <div className="lg:col-span-1 space-y-4 overflow-y-auto pr-2 pb-4">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 min-h-0 relative">
+        {/* Jobs List (Hidden on mobile if a job is selected) */}
+        <div className={`lg:col-span-1 space-y-4 overflow-y-auto pr-2 pb-4 ${activeJob ? 'hidden lg:block' : 'block'}`}>
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20 text-slate-500">
               <Loader2 className="w-8 h-8 animate-spin text-indigo-400 mb-4" />
@@ -242,12 +243,18 @@ export function JobDiscovery() {
         </div>
 
         {/* Job Details Panel */}
-        <div className="lg:col-span-2 h-full hidden lg:block">
+        <div className={`lg:col-span-2 h-full ${activeJob ? 'block' : 'hidden lg:block'}`}>
           {activeJob ? (
-            <div className="glass rounded-3xl p-8 shadow-md h-full flex flex-col overflow-y-auto animate-fadeIn relative">
-              <div className="flex justify-between items-start mb-6 pb-6 border-b border-slate-900/60">
+            <div className="glass rounded-3xl p-6 lg:p-8 shadow-md h-full flex flex-col overflow-y-auto animate-fadeIn relative">
+              <div className="flex justify-between items-start mb-6 pb-6 border-b border-slate-900/60 flex-col lg:flex-row gap-4">
                 <div>
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight leading-snug mb-2">
+                  <button 
+                    onClick={() => setActiveJob(null)}
+                    className="lg:hidden mb-4 flex items-center gap-1.5 text-slate-400 hover:text-white text-xs font-semibold"
+                  >
+                    <ArrowLeft className="w-4 h-4" /> Back to Jobs
+                  </button>
+                  <h2 className="text-xl lg:text-2xl font-extrabold text-white tracking-tight leading-snug mb-2">
                     {activeJob.title}
                   </h2>
                   <div className="flex items-center gap-4 text-sm font-semibold">
