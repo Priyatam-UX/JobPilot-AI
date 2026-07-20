@@ -20,7 +20,7 @@ class TailoredCV(BaseModel):
 
 def generate_tailored_content(resume_text: str, job_description: str) -> TailoredCV:
     """Uses LLM to rewrite the resume summary and bullets specifically for the JD."""
-    llm = ChatGroq(model="llama3-8b-8192", temperature=0.7, groq_api_key=settings.GROQ_API_KEY)
+    llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.7, groq_api_key=settings.GROQ_API_KEY)
     
     prompt = PromptTemplate.from_template(
         """You are an elite executive recruiter. 
