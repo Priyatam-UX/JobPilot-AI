@@ -45,7 +45,7 @@ export const applicationService = {
   getStatusCounts: () => apiRequest<Record<string, number>>('/applications/analytics/status-counts'),
 
   automate: (data: { job_id: string; job_url: string; job_description: string }) => 
-    apiRequest<{status: string, message: string}>('/applications/automate', {
+    apiRequest<{status: string, message: string}>('/applications/auto-apply', {
       method: 'POST',
       body: JSON.stringify(data),
     }),

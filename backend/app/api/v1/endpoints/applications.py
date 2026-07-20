@@ -92,7 +92,7 @@ class AutomateRequest(BaseModel):
     job_url: str
     job_description: str
 
-@router.post("/automate")
+@router.post("/auto-apply")
 async def trigger_automation(
     payload: AutomateRequest,
     background_tasks: BackgroundTasks,
