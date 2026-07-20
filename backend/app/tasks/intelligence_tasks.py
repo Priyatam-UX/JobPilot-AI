@@ -2,7 +2,7 @@ import logging
 import asyncio
 from sqlalchemy.orm import Session
 from app.core.websockets import manager
-from app.services.skill_extractor import extract_skills
+from app.services.ai_extractor import extract_resume_data_with_ai
 from app.models.resume import Resume
 
 logger = logging.getLogger(__name__)
@@ -15,14 +15,16 @@ async def run_resume_analysis_background(db: Session, user_id: str, resume_id: s
         # Simulate network/processing delay if this was a massive LLM task
         # await asyncio.sleep(2)
         
-        skills, exp_years = extract_skills(raw_text)
+        analysis = extract_resume_data_with_ai(raw_text)
+        exp_years = analysis["experience_years"]
+        skills = analysis["all_skills_flat"]
         
         # We need to grab a fresh instance since this is running in background thread
         # It's better to instantiate a new session or be careful with thread-local sessions
         resume = db.query(Resume).filter(Resume.id == resume_id).first()
         if resume:
             resume.experience_years = exp_years
-            resume.all_skills_flat = list(skills)
+            resume.all_skills_flat = skills
             db.commit()
             
             logger.info(f"Background analysis completed for resume {resume_id}")

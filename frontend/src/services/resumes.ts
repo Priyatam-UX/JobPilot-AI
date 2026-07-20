@@ -66,4 +66,9 @@ export const resumeService = {
     method: 'POST',
     body: JSON.stringify({ job_description: jobDescription }),
   }),
+
+  optimize: (id: string, jobDescription: string) => apiRequest<any>(`/resumes/${id}/optimize`, {
+    method: 'POST',
+    body: JSON.stringify({ job_description: jobDescription }),
+  }),
 };

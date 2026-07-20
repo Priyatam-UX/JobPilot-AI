@@ -236,9 +236,9 @@ def compute_ats_score(
     Compute a comprehensive ATS score for a resume against an optional job description.
     Returns a full analysis report.
     """
-    from app.services.skill_extractor import extract_all
+    from app.services.ai_extractor import extract_resume_data_with_ai
 
-    analysis = extract_all(resume_text)
+    analysis = extract_resume_data_with_ai(resume_text)
     sections = analysis["sections"]
     word_count = analysis["word_count"]
 

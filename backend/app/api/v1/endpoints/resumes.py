@@ -10,7 +10,7 @@ from app.models.user import User
 from app.schemas.resume import ResumeResponse, ResumeVersionResponse
 from app.services.resume_service import ResumeService
 from app.services.ats_service import compute_ats_score
-from app.services.skill_extractor import extract_all
+from app.services.skill_extractor import extract_skills
 
 router = APIRouter(prefix="/resumes", tags=["Resumes"])
 
@@ -107,7 +107,8 @@ def analyze_resume(
             "ats_score": 0,
         }
 
-    analysis = extract_all(resume.raw_text)
+    from app.services.ai_extractor import extract_resume_data_with_ai
+    analysis = extract_resume_data_with_ai(resume.raw_text)
     ats_report = compute_ats_score(resume.raw_text)
 
     return {
@@ -168,3 +169,27 @@ def list_resume_versions(
     """List all tailored versions of a resume."""
     service = ResumeService(db)
     return service.get_versions(resume_id, current_user.id)
+
+
+@router.post("/{resume_id}/optimize")
+def optimize_resume(
+    resume_id: uuid.UUID,
+    payload: ATSCheckRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Rewrites the professional summary and bullet points of a resume to better match a JD.
+    """
+    service = ResumeService(db)
+    resume = service.get_resume(resume_id, current_user.id)
+
+    if not resume.raw_text:
+        return {"message": "No resume text found. Please re-upload your resume."}
+
+    if not payload.job_description:
+        return {"message": "Job description is required for optimization."}
+
+    from app.services.tailoring_service import optimize_resume_bullets
+    result = optimize_resume_bullets(resume.raw_text, payload.job_description)
+    return result
