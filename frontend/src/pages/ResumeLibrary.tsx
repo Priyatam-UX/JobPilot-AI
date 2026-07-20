@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resumeService, ResumeResponse } from '../services/resumes';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FileText,
   Trash2,
   Sparkles,
   CheckCircle,
