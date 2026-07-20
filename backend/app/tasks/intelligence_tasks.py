@@ -121,6 +121,14 @@ async def run_auto_apply_pipeline(
                 "data": {"id": str(app.id), "status": "applied"}
             }, user_id)
             
+            # Send Email Notification
+            from app.services.email_service import send_application_success_email
+            if "email" in user_data and user_data["email"]:
+                try:
+                    await send_application_success_email(user_data["email"], job_id, job_url)
+                except Exception as email_err:
+                    logger.error(f"Failed to send success email: {email_err}")
+            
     except Exception as e:
         logger.error(f"Auto-apply pipeline failed: {e}")
         await manager.send_personal_message({

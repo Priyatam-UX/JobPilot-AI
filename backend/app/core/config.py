@@ -56,6 +56,12 @@ class Settings(BaseSettings):
     AWS_STORAGE_BUCKET_NAME: str = ""
     USE_S3: bool = False
     
+    # Email / SMTP
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_SERVER: str = "smtp.gmail.com"
+    SMTP_PORT: int = 465
+    
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
