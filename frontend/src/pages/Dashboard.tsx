@@ -13,7 +13,7 @@ import {
   Activity,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 interface DashboardSummary {
   applications: Record<string, number>;
@@ -82,7 +82,7 @@ export function Dashboard() {
     suggestions.push({ title: 'Prepare for Interviews', desc: 'Practice behavioral and technical questions with AI-powered STAR method feedback.', action: 'Start Prep', link: '/interview' });
   }
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -90,7 +90,7 @@ export function Dashboard() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
