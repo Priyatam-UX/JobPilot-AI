@@ -55,7 +55,7 @@ async def run_resume_analysis_background(db: Session, user_id: str, resume_id: s
         logger.error(f"Error in background resume analysis: {e}")
 
 from app.services.tailoring_service import generate_tailored_cover_letter
-from app.services.cv_generator_service import generate_tailored_cv
+from app.services.cv_generator_service import generate_tailored_cv_sync
 from app.services.automation_service import automate_job_application
 from app.core.database import SessionLocal
 from app.models.application import Application
@@ -85,7 +85,10 @@ async def run_auto_apply_pipeline(
             "data": {"job_id": job_id, "step": "AI is generating ATS-friendly tailored CV...", "status": "in_progress"}
         }, user_id)
         
-        tailored_cv_path = await generate_tailored_cv(user_data, resume_text, job_description)
+        tailored_cv_path = await asyncio.to_thread(
+            generate_tailored_cv_sync,
+            user_data, resume_text, job_description
+        )
         
         # Step 2: Tailor cover letter
         await manager.send_personal_message({

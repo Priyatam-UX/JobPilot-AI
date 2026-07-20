@@ -104,8 +104,8 @@ def create_docx_cv(user_data: Dict[str, Any], tailored_content: TailoredCV, orig
     
     return filepath
 
-async def generate_tailored_cv(user_data: dict, resume_text: str, job_description: str) -> str:
-    """Main entrypoint for CV generation."""
+def generate_tailored_cv_sync(user_data: dict, resume_text: str, job_description: str) -> str:
+    """Main entrypoint for CV generation (synchronous to avoid event loop blocking)."""
     logger.info("Generating tailored CV via AI...")
     tailored_content = generate_tailored_content(resume_text, job_description)
     logger.info("Creating DOCX file...")
