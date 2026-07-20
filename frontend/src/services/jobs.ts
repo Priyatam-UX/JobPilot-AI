@@ -19,7 +19,7 @@ export interface JobResponse {
 }
 
 export const jobService = {
-  discover: () => apiRequest<JobResponse[]>('/jobs/discover'),
+  discover: (query?: string) => apiRequest<JobResponse[]>(`/jobs/discover${query ? `?query=${encodeURIComponent(query)}` : ''}`),
 
   list: () => apiRequest<JobResponse[]>('/jobs/'),
   

@@ -23,6 +23,7 @@ import {
 export function JobDiscovery() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
+  const [apiSearchQuery, setApiSearchQuery] = useState('');
   const [activeJob, setActiveJob] = useState<JobResponse | null>(null);
   
   // Auto Apply State
@@ -41,8 +42,8 @@ export function JobDiscovery() {
 
   // Fetch live jobs from backend (which fetches from Remotive + scores against resume)
   const { data: jobs = [], isLoading, refetch, isRefetching } = useQuery<JobResponse[]>({
-    queryKey: ['discoverJobs'],
-    queryFn: jobService.discover,
+    queryKey: ['discoverJobs', apiSearchQuery],
+    queryFn: () => jobService.discover(apiSearchQuery),
     refetchOnWindowFocus: false, // Don't spam the API
   });
 
@@ -100,11 +101,10 @@ export function JobDiscovery() {
     autoApplyMutation.mutate(activeJob);
   };
 
-  const filteredJobs = jobs.filter(
-    (job) =>
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (job.company_name && job.company_name.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setApiSearchQuery(searchQuery);
+  };
 
   return (
     <div className="h-full flex flex-col min-h-0 animate-fadeIn relative space-y-6">
@@ -127,16 +127,16 @@ export function JobDiscovery() {
           </p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:w-80 group">
+          <form onSubmit={handleSearch} className="relative flex-1 md:w-80 group">
             <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-indigo-400 transition-colors" />
             <input
               type="text"
-              placeholder="Search by role or company..."
+              placeholder="Search global jobs (e.g. Data Scientist)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl py-2.5 pl-11 pr-4 outline-none text-sm text-slate-100 transition-colors shadow-sm"
             />
-          </div>
+          </form>
           <button className="p-2.5 bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 rounded-xl text-slate-300 transition-all shadow-sm">
             <Filter className="w-4 h-4" />
           </button>
@@ -159,12 +159,12 @@ export function JobDiscovery() {
               <Loader2 className="w-8 h-8 animate-spin text-indigo-400 mb-4" />
               <p className="text-sm">Fetching and scoring live jobs...</p>
             </div>
-          ) : filteredJobs.length === 0 ? (
+          ) : jobs.length === 0 ? (
             <div className="text-center py-12 text-slate-500 text-sm">
               No jobs found. Try adjusting your search.
             </div>
           ) : (
-            filteredJobs.map((job) => (
+            jobs.map((job) => (
               <div
                 key={job.id}
                 onClick={() => setActiveJob(job)}
@@ -258,7 +258,7 @@ export function JobDiscovery() {
                   <button
                     onClick={handleAutoApply}
                     disabled={autoApplyMutation.isPending}
-                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-bold shadow-md shadow-orange-500/20 transition-all flex items-center gap-2"
+                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-bold shadow-md shadow-orange-500/20 transition-all flex items-center gap-2 hover:-translate-y-0.5 animate-pulse-glow"
                   >
                     <Rocket className="w-4 h-4" />
                     Auto Apply
@@ -335,7 +335,7 @@ export function JobDiscovery() {
             </div>
           ) : (
             <div className="glass rounded-3xl p-8 shadow-md h-full flex flex-col items-center justify-center text-center">
-              <Zap className="w-16 h-16 text-slate-800 mb-6" />
+              <Zap className="w-16 h-16 text-slate-800 mb-6 animate-float" />
               <h3 className="text-xl font-bold text-white mb-2">Select a Job</h3>
               <p className="text-slate-500 text-sm max-w-md leading-relaxed">
                 Choose a job from the list to view its full description, analyze how well your resume matches the requirements, and identify missing keywords.

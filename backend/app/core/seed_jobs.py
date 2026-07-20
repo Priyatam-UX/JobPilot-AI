@@ -223,7 +223,7 @@ def seed_jobs():
         # Idempotent: skip if jobs already exist
         count = db.execute(text("SELECT COUNT(*) FROM jobs")).scalar()
         if count and count > 0:
-            print(f"✅ Jobs table already has {count} rows. Skipping seed.")
+            print(f"[OK] Jobs table already has {count} rows. Skipping seed.")
             return
 
         jobs_to_insert = []
@@ -244,7 +244,7 @@ def seed_jobs():
 
         db.add_all(jobs_to_insert)
         db.commit()
-        print(f"✅ Seeded {len(jobs_to_insert)} job listings into the database.")
+        print(f"[OK] Seeded {len(jobs_to_insert)} job listings into the database.")
 
 
 if __name__ == "__main__":

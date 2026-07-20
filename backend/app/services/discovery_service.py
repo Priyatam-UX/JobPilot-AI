@@ -28,11 +28,12 @@ def clean_html(raw_html: str) -> str:
     return re.sub(r'\s+', ' ', text).strip()
 
 
-async def fetch_jobs_from_api(limit: int = 20, category: str = "software-dev") -> List[Dict[str, Any]]:
-    """Fetch live software engineering jobs from Remotive API."""
+async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[Dict[str, Any]]:
+    """Fetch live jobs from Remotive API."""
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(f"{REMOTIVE_URL}?category={category}&limit={limit}")
+            url = f"{REMOTIVE_URL}?search={search_query}&limit={limit}" if search_query else f"{REMOTIVE_URL}?category=software-dev&limit={limit}"
+            response = await client.get(url)
             response.raise_for_status()
             data = response.json()
             jobs = data.get("jobs", [])[:limit]
@@ -60,6 +61,7 @@ def discover_and_match_jobs(
     db: Session,
     user_id: uuid.UUID,
     limit: int = 15,
+    search_query: str = "",
 ) -> List[Dict[str, Any]]:
     """
     Fetch live jobs, check against the user's most recent resume,
@@ -95,7 +97,7 @@ def discover_and_match_jobs(
         import nest_asyncio
         nest_asyncio.apply()
         
-    live_jobs = loop.run_until_complete(fetch_jobs_from_api(limit=30))
+    live_jobs = loop.run_until_complete(fetch_jobs_from_api(limit=30, search_query=search_query))
     
     # If API failed, fallback to whatever is in the DB
     if not live_jobs:

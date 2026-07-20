@@ -66,10 +66,30 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        fadeIn: {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        slideUp: {
+          from: { transform: "translateY(20px)", opacity: "0" },
+          to: { transform: "translateY(0)", opacity: "1" },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        pulseGlow: {
+          '0%, 100%': { opacity: '1', filter: 'drop-shadow(0 0 5px rgba(99, 102, 241, 0.5))' },
+          '50%': { opacity: '0.8', filter: 'drop-shadow(0 0 15px rgba(99, 102, 241, 0.8))' },
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        fadeIn: "fadeIn 0.5s ease-out",
+        slideUp: "slideUp 0.6s ease-out forwards",
+        float: "float 6s ease-in-out infinite",
+        "pulse-glow": "pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
     },
   },

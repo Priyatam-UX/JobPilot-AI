@@ -60,24 +60,24 @@ def on_startup():
                     try:
                         conn.execute(text(f"ALTER TABLE jobs ADD COLUMN {col_name} {col_type}"))
                         conn.commit()
-                        logger.info(f"✅ Added column jobs.{col_name}")
+                        logger.info(f"[OK] Added column jobs.{col_name}")
                     except Exception as e:
                         conn.rollback()
-                        logger.warning(f"⚠️  Could not add column jobs.{col_name}: {e}")
+                        logger.warning(f"[WARN] Could not add column jobs.{col_name}: {e}")
 
         # Create any brand-new tables
         Base.metadata.create_all(bind=engine)
-        logger.info("✅ Database schema ready.")
+        logger.info("[OK] Database schema ready.")
 
     except Exception as e:
-        logger.error(f"❌ DB startup error: {e}")
+        logger.error(f"[ERROR] DB startup error: {e}")
 
     # Auto-seed jobs if table is empty
     try:
         from app.core.seed_jobs import seed_jobs
         seed_jobs()
     except Exception as e:
-        logger.warning(f"⚠️  Job seed skipped: {e}")
+        logger.warning(f"[WARN] Job seed skipped: {e}")
 
 
 @app.get("/health", tags=["System"])

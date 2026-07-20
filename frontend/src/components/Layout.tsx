@@ -10,6 +10,8 @@ import {
   UserCheck,
   LogOut,
   Sparkles,
+  Menu,
+  X,
 } from 'lucide-react';
 import { ChatBot } from './ChatBot';
 
@@ -21,6 +23,7 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, clearAuth } = useAuthStore();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -38,14 +41,30 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 font-sans">
+      
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar with Glassmorphism */}
-      <aside className="w-64 border-r border-slate-800 bg-slate-950/60 backdrop-blur-xl flex flex-col h-full shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-800 bg-slate-950/95 backdrop-blur-xl flex flex-col h-full transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Brand */}
         <div className="h-16 flex items-center px-6 border-b border-slate-900 gap-2">
           <Sparkles className="w-6 h-6 text-indigo-400 animate-pulse" />
           <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-200 via-slate-100 to-indigo-400 bg-clip-text text-transparent">
+          <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-200 via-slate-100 to-indigo-400 bg-clip-text text-transparent">
             Job Copilot AI
           </span>
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden ml-auto p-1 text-slate-400 hover:text-white"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Navigation */}
@@ -57,6 +76,7 @@ export function Layout({ children }: LayoutProps) {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => setIsSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group ${
                   isActive
                     ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/20'
@@ -97,8 +117,14 @@ export function Layout({ children }: LayoutProps) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="h-16 border-b border-slate-900 bg-slate-950/40 backdrop-blur-md flex items-center justify-between px-8 shrink-0">
-          <div>
+        <header className="h-16 border-b border-slate-900 bg-slate-950/40 backdrop-blur-md flex items-center justify-between px-4 md:px-8 shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-2 -ml-2 text-slate-400 hover:text-white focus:outline-none"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
             <h1 className="text-xl font-bold tracking-tight text-white">
               {navItems.find((item) => item.path === location.pathname)?.name || 'Dashboard'}
             </h1>

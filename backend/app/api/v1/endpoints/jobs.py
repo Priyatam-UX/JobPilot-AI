@@ -33,6 +33,7 @@ class DiscoveredJobResponse(BaseModel):
 @router.get("/discover", response_model=List[DiscoveredJobResponse])
 def discover_jobs(
     limit: int = Query(15, le=50),
+    query: Optional[str] = Query(None, description="Search term for global job search"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -40,7 +41,7 @@ def discover_jobs(
     Fetch live jobs from external APIs (Remotive), match them against the user's
     active resume, calculate scores, and return them sorted by match score.
     """
-    return discover_and_match_jobs(db, current_user.id, limit=limit)
+    return discover_and_match_jobs(db, current_user.id, limit=limit, search_query=query or "")
 
 
 @router.get("/", response_model=List[JobResponse])
