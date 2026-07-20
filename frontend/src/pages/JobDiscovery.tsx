@@ -234,8 +234,9 @@ export function JobDiscovery() {
                       style={{ width: `${job.match_score || 0}%` }}
                     />
                   </div>
-                </TiltCard>
-              </motion.div>
+                </div>
+              </TiltCard>
+            </motion.div>
             ))
           )}
         </div>
