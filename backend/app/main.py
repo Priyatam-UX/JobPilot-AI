@@ -34,8 +34,8 @@ app.include_router(api_router)
 
 
 @app.on_event("startup")
-def on_startup():
-    """Run DB migrations and seed data on startup."""
+async def on_startup():
+    """Run DB migrations, seed data, and start background tasks on startup."""
     import logging
     logger = logging.getLogger(__name__)
 
@@ -78,6 +78,14 @@ def on_startup():
         seed_jobs()
     except Exception as e:
         logger.warning(f"[WARN] Job seed skipped: {e}")
+
+    # Kick off background job ingestion
+    import asyncio
+    from app.core.database import SessionLocal
+    from app.tasks.job_scraper_tasks import run_job_ingestion
+
+    db = SessionLocal()
+    asyncio.create_task(run_job_ingestion(db, limit=20))
 
 
 @app.get("/health", tags=["System"])

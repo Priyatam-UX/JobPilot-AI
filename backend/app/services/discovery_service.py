@@ -1,35 +1,33 @@
 """
-Job Discovery Service — fetches live jobs from Remotive API (no auth required)
-and matches them against the user's resume using skill keyword extraction.
+Job Discovery Service — searches jobs in the database using true semantic similarity 
+via pgvector and OpenAI embeddings against the user's resume.
 """
-import httpx
-from typing import List, Dict, Any
-from bs4 import BeautifulSoup
-from sqlalchemy.orm import Session
-from app.models.job import Job
-from app.models.resume import Resume
-from app.services.skill_extractor import extract_skills
-from app.services.ats_service import score_keyword_match
 import logging
 import uuid
+from typing import List, Dict, Any
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from app.models.job import Job
+from app.models.resume import Resume
+from app.services.ats_service import score_keyword_match
+import httpx
+from bs4 import BeautifulSoup
 import re
 
 logger = logging.getLogger(__name__)
 
 REMOTIVE_URL = "https://remotive.com/api/remote-jobs"
 
-
 def clean_html(raw_html: str) -> str:
     """Strip HTML tags from job descriptions for better analysis."""
     if not raw_html:
         return ""
     soup = BeautifulSoup(raw_html, "html.parser")
-    text = soup.get_text(separator=" ")
-    return re.sub(r'\s+', ' ', text).strip()
-
+    text_content = soup.get_text(separator=" ")
+    return re.sub(r'\s+', ' ', text_content).strip()
 
 async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[Dict[str, Any]]:
-    """Fetch live jobs from Remotive API."""
+    """Fetch live jobs from Remotive API (used by background ingest task)."""
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             url = f"{REMOTIVE_URL}?search={search_query}&limit={limit}" if search_query else f"{REMOTIVE_URL}?category=software-dev&limit={limit}"
@@ -38,7 +36,6 @@ async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[D
             data = response.json()
             jobs = data.get("jobs", [])[:limit]
             
-            # Map to our standard format
             mapped_jobs = []
             for j in jobs:
                 description = clean_html(j.get("description", ""))
@@ -56,7 +53,6 @@ async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[D
         logger.error(f"Failed to fetch jobs from Remotive API: {e}")
         return []
 
-
 def discover_and_match_jobs(
     db: Session,
     user_id: uuid.UUID,
@@ -64,13 +60,10 @@ def discover_and_match_jobs(
     search_query: str = "",
 ) -> List[Dict[str, Any]]:
     """
-    Fetch live jobs, check against the user's most recent resume,
-    calculate a match score, and return sorted by match score.
-    Uses cached jobs from the DB if they exist, otherwise fetches new ones.
+    Finds the most semantically relevant jobs for the user using pgvector 
+    cosine similarity against their most recently uploaded resume.
     """
-    import asyncio
-    
-    # 1. Get user's active resume for keyword matching
+    # 1. Get user's active resume and its embedding
     resume = (
         db.query(Resume)
         .filter(Resume.user_id == user_id)
@@ -79,31 +72,50 @@ def discover_and_match_jobs(
     )
     
     resume_text = resume.raw_text if resume else ""
-    
-    # 2. Try to get existing unbookmarked jobs from DB first (so we don't spam API)
-    # Actually, let's just fetch from API to ensure they are live, 
-    # but we won't save them to DB until the user bookmarks them.
-    # To avoid API rate limits, we could cache them, but for now fetching live is fine.
-    
-    # Run async fetch synchronously in this thread (since FastAPI endpoints might be def)
-    try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    vector = resume.embedding if resume else None
+
+    # 2. Semantic Search if we have a vector
+    scored_jobs = []
+    if vector:
+        # We use <-> for L2 distance or <=> for Cosine distance
+        # 1 - cosine_distance = cosine similarity
+        results = (
+            db.query(Job, Job.embedding.cosine_distance(vector).label('distance'))
+            .filter(Job.embedding.isnot(None))
+            .order_by(Job.embedding.cosine_distance(vector))
+            .limit(limit)
+            .all()
+        )
         
-    if loop.is_running():
-        # If we're already in an async context, this might fail, but since our endpoint is sync:
-        import nest_asyncio
-        nest_asyncio.apply()
-        
-    live_jobs = loop.run_until_complete(fetch_jobs_from_api(limit=30, search_query=search_query))
-    
-    # If API failed, fallback to whatever is in the DB
-    if not live_jobs:
-        existing_jobs = db.query(Job).limit(20).all()
-        live_jobs = [
-            {
+        for job_obj, distance in results:
+            # Distance is 0 for exact match, up to 2 for opposite.
+            # Similarity = 1 - distance. Convert to percentage 0-100.
+            similarity = max(0.0, 1.0 - distance)
+            match_score = int(similarity * 100)
+            
+            # We can still extract keywords for UI flair
+            _, matched, missing = score_keyword_match(resume_text, job_obj.description or "")
+            
+            job_data = {
+                "id": str(job_obj.id),
+                "title": job_obj.title,
+                "company_name": job_obj.company_name,
+                "location": job_obj.location,
+                "salary": job_obj.salary,
+                "description": job_obj.description,
+                "url": job_obj.source_url,
+                "source_portal": job_obj.source_portal,
+                "match_score": match_score,
+                "matched_keywords": matched[:5],
+                "missing_keywords": missing[:5],
+            }
+            scored_jobs.append(job_data)
+            
+    else:
+        # Fallback to random/latest jobs if no resume is embedded yet
+        fallback_jobs = db.query(Job).limit(limit).all()
+        for j in fallback_jobs:
+            job_data = {
                 "id": str(j.id),
                 "title": j.title,
                 "company_name": j.company_name,
@@ -112,34 +124,10 @@ def discover_and_match_jobs(
                 "description": j.description,
                 "url": j.source_url,
                 "source_portal": j.source_portal,
+                "match_score": 0,
+                "matched_keywords": [],
+                "missing_keywords": [],
             }
-            for j in existing_jobs
-        ]
+            scored_jobs.append(job_data)
 
-    scored_jobs = []
-    for job in live_jobs:
-        match_score = 0
-        matched_kws = []
-        missing_kws = []
-        
-        if resume_text and job.get("description"):
-            # Calculate match score based on ATS keywords
-            score, matched, missing = score_keyword_match(resume_text, job["description"])
-            match_score = int(score)
-            matched_kws = matched
-            missing_kws = missing
-        
-        # Add to list
-        job_data = {
-            **job,
-            "id": job.get("id") or str(uuid.uuid4()), # Assign temp ID if not from DB
-            "match_score": match_score,
-            "matched_keywords": matched_kws[:5], # Send top 5
-            "missing_keywords": missing_kws[:5], # Send top 5
-        }
-        scored_jobs.append(job_data)
-
-    # 3. Sort by match score descending
-    scored_jobs.sort(key=lambda x: x["match_score"], reverse=True)
-    
-    return scored_jobs[:limit]
+    return scored_jobs

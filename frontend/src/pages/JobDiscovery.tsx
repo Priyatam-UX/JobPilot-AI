@@ -221,7 +221,7 @@ export function JobDiscovery() {
                 <div className="mt-4 pt-4 border-t border-slate-800/50">
                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-2">
                     <span className="text-slate-500 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Resume Match
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Semantic Match
                     </span>
                     <span className={job.match_score && job.match_score >= 80 ? 'text-emerald-400' : 'text-amber-400'}>
                       {job.match_score || 0}%
@@ -296,7 +296,7 @@ export function JobDiscovery() {
               {/* Match Insights */}
               <div className="mb-8 p-5 rounded-2xl bg-indigo-950/10 border border-indigo-500/20">
                 <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-2 mb-4">
-                  <Sparkles className="w-4 h-4" /> AI Resume Match Analysis
+                  <Sparkles className="w-4 h-4" /> AI Semantic Match Analysis
                 </h4>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
