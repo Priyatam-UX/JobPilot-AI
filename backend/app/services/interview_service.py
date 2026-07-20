@@ -211,16 +211,17 @@ def analyze_star_response(question: str, answer: str) -> Dict[str, Any]:
 
     except Exception as e:
         logger.error(f"Error calling OpenAI API in Interview Coach: {e}")
+        error_msg = str(e)
         return {
             "score": 0,
             "star_analysis": {
                 "situation": "Error connecting to AI.",
-                "task": "Error connecting to AI.",
-                "action": "Error connecting to AI.",
-                "result": "Error connecting to AI.",
+                "task": f"Error details: {error_msg}",
+                "action": "Please double check your API key in Render.",
+                "result": "If using a free tier, you may be out of credits.",
             },
             "strengths": [],
-            "improvements": ["Check your OpenAI API key and connection status."],
+            "improvements": [f"API Error: {error_msg}"],
             "keywords_used": [],
             "word_count": word_count,
             "quantification_count": 0,

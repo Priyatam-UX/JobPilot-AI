@@ -81,4 +81,4 @@ def get_career_response(
 
     except Exception as e:
         logger.error(f"Error calling OpenAI API in Career Coach: {e}")
-        return "I'm having trouble connecting to my AI knowledge base right now. Please check your API key and connection."
+        return f"I'm having trouble connecting to OpenAI. Error details: {str(e)}\n\nPlease double check your API key in Render."

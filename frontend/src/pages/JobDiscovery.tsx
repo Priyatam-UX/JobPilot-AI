@@ -4,6 +4,7 @@ import { jobService, JobResponse } from '../services/jobs';
 import { applicationService } from '../services/applications';
 import { useWebSocket } from '../context/WebSocketContext';
 import { AutoApplyModal } from '../components/AutoApplyModal';
+import { motion } from 'framer-motion';
 import {
   Search,
   Filter,
@@ -164,8 +165,12 @@ export function JobDiscovery() {
               No jobs found. Try adjusting your search.
             </div>
           ) : (
-            jobs.map((job) => (
-              <div
+            jobs.map((job, index) => (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
                 key={job.id}
                 onClick={() => setActiveJob(job)}
                 className={`p-5 rounded-2xl cursor-pointer transition-all duration-300 border ${
@@ -226,7 +231,7 @@ export function JobDiscovery() {
                     />
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))
           )}
         </div>
