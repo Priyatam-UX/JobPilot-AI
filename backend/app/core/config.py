@@ -42,6 +42,7 @@ class Settings(BaseSettings):
 
     # AI API Keys
     OPENAI_API_KEY: Union[str, None] = None
+    GROQ_API_KEY: Union[str, None] = None
     
     # OAuth Configurations
     GOOGLE_CLIENT_ID: str = ""

@@ -1,7 +1,7 @@
 import logging
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from app.core.config import settings
 
@@ -38,18 +38,18 @@ class ResumeExtractionSchema(BaseModel):
 
 def extract_resume_data_with_ai(raw_text: str) -> dict:
     """
-    Uses OpenAI gpt-4o-mini to extract highly structured data from raw resume text.
+    Uses Groq to extract highly structured data from raw resume text.
     Returns a dictionary mapping exactly to ResumeExtractionSchema.
     """
-    if not settings.OPENAI_API_KEY:
-        logger.warning("OPENAI_API_KEY not set. Falling back to offline extraction.")
+    if not settings.GROQ_API_KEY:
+        logger.warning("GROQ_API_KEY not set. Falling back to offline extraction.")
         return get_fallback_extraction(raw_text)
         
     try:
-        llm = ChatOpenAI(
-            model="gpt-4o-mini",
+        llm = ChatGroq(
+            model="llama3-8b-8192",
             temperature=0,
-            openai_api_key=settings.OPENAI_API_KEY
+            groq_api_key=settings.GROQ_API_KEY
         )
         
         structured_llm = llm.with_structured_output(ResumeExtractionSchema)

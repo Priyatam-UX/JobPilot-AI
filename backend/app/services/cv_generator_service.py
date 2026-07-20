@@ -5,7 +5,7 @@ from typing import Dict, Any
 from docx import Document
 from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from pydantic import BaseModel, Field
 from app.core.config import settings
@@ -20,7 +20,7 @@ class TailoredCV(BaseModel):
 
 def generate_tailored_content(resume_text: str, job_description: str) -> TailoredCV:
     """Uses LLM to rewrite the resume summary and bullets specifically for the JD."""
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7, openai_api_key=settings.OPENAI_API_KEY)
+    llm = ChatGroq(model="llama3-8b-8192", temperature=0.7, groq_api_key=settings.GROQ_API_KEY)
     
     prompt = PromptTemplate.from_template(
         """You are an elite executive recruiter. 
