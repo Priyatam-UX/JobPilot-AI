@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 
 interface Particle {
   x: number;
@@ -25,7 +25,7 @@ export function ParticleBackground({
   speed = 0.5,
 }: ParticleBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameId = useRef<number>();
+  const animationFrameId = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
