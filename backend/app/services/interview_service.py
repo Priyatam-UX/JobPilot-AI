@@ -170,7 +170,7 @@ def analyze_star_response(question: str, answer: str) -> Dict[str, Any]:
 
     try:
         # Initialize Groq LLM with structured output
-        llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.2, api_key=settings.GROQ_API_KEY)
+        llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.2, api_key=settings.GROQ_API_KEY)
         structured_llm = llm.with_structured_output(FeedbackResult)
 
         prompt = f"""
@@ -249,7 +249,7 @@ def generate_interview_questions(job_description: str, resume_text: str) -> List
         ]
 
     try:
-        llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, api_key=settings.GROQ_API_KEY)
+        llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.7, api_key=settings.GROQ_API_KEY)
         structured_llm = llm.with_structured_output(GeneratedQuestionsResponse)
 
         prompt = f"""

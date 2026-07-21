@@ -23,7 +23,7 @@ def optimize_resume_bullets(resume_text: str, job_description: str) -> dict:
         
     try:
         llm = ChatGroq(
-            model="llama-3.3-70b-versatile",
+            model="llama-3.1-8b-instant",
             temperature=0.7,
             groq_api_key=settings.GROQ_API_KEY
         )
@@ -62,7 +62,7 @@ def generate_tailored_cover_letter(resume_text: str, job_description: str) -> st
         return "Cover letter generation requires a valid API key. This is a placeholder cover letter."
         
     try:
-        llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, groq_api_key=settings.GROQ_API_KEY)
+        llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.7, groq_api_key=settings.GROQ_API_KEY)
         
         prompt = PromptTemplate.from_template(
             """You are an elite Tech Recruiter and AI Resume Writer.
