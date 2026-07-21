@@ -107,8 +107,8 @@ def get_questions(
 
 
 from pydantic import BaseModel
-import instructor
-from openai import OpenAI
+from langchain_groq import ChatGroq
+from langchain_core.prompts import ChatPromptTemplate
 from app.core.config import settings
 import logging
 
@@ -152,25 +152,26 @@ def analyze_star_response(question: str, answer: str) -> Dict[str, Any]:
         }
 
     # If no key, run a simple fallback (just to prevent crashing, but warn the user)
-    if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "mock-key":
+    if not settings.GROQ_API_KEY or settings.GROQ_API_KEY == "mock-key":
         return {
             "score": 50,
             "star_analysis": {
-                "situation": "⚠️ OpenAI API Key Not Configured.",
-                "task": "To get true AI STAR grading, add your OPENAI_API_KEY to the .env file.",
+                "situation": "⚠️ Groq API Key Not Configured.",
+                "task": "To get true AI STAR grading, add your GROQ_API_KEY to the .env file.",
                 "action": "Currently running the mock fallback analyzer.",
                 "result": "Real AI analysis requires the API key.",
             },
             "strengths": ["You provided an answer."],
-            "improvements": ["Add OPENAI_API_KEY to .env to enable the true AI Coach."],
+            "improvements": ["Add GROQ_API_KEY to .env to enable the true AI Coach."],
             "keywords_used": ["mock", "fallback"],
             "word_count": word_count,
             "quantification_count": 0,
         }
 
     try:
-        # Enable instructor on the OpenAI client
-        client = instructor.patch(OpenAI(api_key=settings.OPENAI_API_KEY))
+        # Initialize Groq LLM with structured output
+        llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.2, api_key=settings.GROQ_API_KEY)
+        structured_llm = llm.with_structured_output(FeedbackResult)
 
         prompt = f"""
         You are an elite Tech Recruiter and Interview Coach.
@@ -188,16 +189,13 @@ def analyze_star_response(question: str, answer: str) -> Dict[str, Any]:
         6. Count how many times they quantified their results (used numbers, percentages, dollar amounts, timeframes).
         """
 
-        # Instructor automatically validates and structures the output based on the Pydantic model
-        feedback: FeedbackResult = client.chat.completions.create(
-            model="gpt-4o-mini",
-            response_model=FeedbackResult,
-            temperature=0.2,
-            messages=[
-                {"role": "system", "content": "You are a strict, highly analytical interview grader."},
-                {"role": "user", "content": prompt},
-            ]
-        )
+        prompt_template = ChatPromptTemplate.from_messages([
+            ("system", "You are a strict, highly analytical interview grader."),
+            ("user", "{prompt}"),
+        ])
+
+        chain = prompt_template | structured_llm
+        feedback = chain.invoke({"prompt": prompt})
 
         return {
             "score": feedback.score,
@@ -210,7 +208,7 @@ def analyze_star_response(question: str, answer: str) -> Dict[str, Any]:
         }
 
     except Exception as e:
-        logger.error(f"Error calling OpenAI API in Interview Coach: {e}")
+        logger.error(f"Error calling Groq API in Interview Coach: {e}")
         error_msg = str(e)
         return {
             "score": 0,

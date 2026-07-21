@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, List, Optional
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
@@ -28,21 +28,21 @@ def get_career_response(
     desired_role: Optional[str] = None,
 ) -> str:
     """
-    Generate a context-aware career coaching response using OpenAI's GPT models via LangChain.
+    Generate a context-aware career coaching response using Groq's Llama models via LangChain.
     """
-    if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "mock-key":
+    if not settings.GROQ_API_KEY or settings.GROQ_API_KEY == "mock-key":
         return (
-            "🚨 **OpenAI API Key Not Configured**\n\n"
-            "This feature requires a real OpenAI API key to function as a true LLM-powered coach.\n\n"
-            "Please add `OPENAI_API_KEY=your_key_here` to your `.env` file in the backend directory and restart the server to chat with the real AI."
+            "🚨 **Groq API Key Not Configured**\n\n"
+            "This feature requires a real Groq API key to function as a true LLM-powered coach.\n\n"
+            "Please add `GROQ_API_KEY=your_key_here` to your `.env` file in the backend directory and restart the server to chat with the real AI."
         )
 
     try:
         # Initialize the LLM
-        llm = ChatOpenAI(
-            model="gpt-4o-mini", 
+        llm = ChatGroq(
+            model="llama-3.3-70b-versatile", 
             temperature=0.7, 
-            api_key=settings.OPENAI_API_KEY
+            api_key=settings.GROQ_API_KEY
         )
         
         # Build context
@@ -80,5 +80,5 @@ def get_career_response(
         return response.content
 
     except Exception as e:
-        logger.error(f"Error calling OpenAI API in Career Coach: {e}")
-        return f"I'm having trouble connecting to OpenAI. Error details: {str(e)}\n\nPlease double check your API key in Render."
+        logger.error(f"Error calling Groq API in Career Coach: {e}")
+        return f"I'm having trouble connecting to AI. Error details: {str(e)}\n\nPlease double check your GROQ_API_KEY in Render."
