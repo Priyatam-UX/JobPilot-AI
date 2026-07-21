@@ -48,15 +48,16 @@ async def on_startup():
         from sqlalchemy import text, inspect
         with engine.connect() as conn:
             inspector = inspect(engine)
-            existing_cols = [c["name"] for c in inspector.get_columns("jobs")]
-
-            new_cols = {
+            
+            # Job Table Columns
+            existing_job_cols = [c["name"] for c in inspector.get_columns("jobs")]
+            new_job_cols = {
                 "company_name": "VARCHAR(255)",
                 "salary": "VARCHAR(255)",
                 "match_score": "INTEGER",
             }
-            for col_name, col_type in new_cols.items():
-                if col_name not in existing_cols:
+            for col_name, col_type in new_job_cols.items():
+                if col_name not in existing_job_cols:
                     try:
                         conn.execute(text(f"ALTER TABLE jobs ADD COLUMN {col_name} {col_type}"))
                         conn.commit()
@@ -64,6 +65,25 @@ async def on_startup():
                     except Exception as e:
                         conn.rollback()
                         logger.warning(f"[WARN] Could not add column jobs.{col_name}: {e}")
+            
+            # Resume Table Columns (Missing AI & ATS Fields)
+            existing_resume_cols = [c["name"] for c in inspector.get_columns("resumes")]
+            new_resume_cols = {
+                "experience_years": "FLOAT",
+                "all_skills_flat": "JSON",
+                "ats_score": "FLOAT",
+                "ats_grade": "VARCHAR(10)",
+                "ats_suggestions": "JSON",
+            }
+            for col_name, col_type in new_resume_cols.items():
+                if col_name not in existing_resume_cols:
+                    try:
+                        conn.execute(text(f"ALTER TABLE resumes ADD COLUMN {col_name} {col_type}"))
+                        conn.commit()
+                        logger.info(f"[OK] Added column resumes.{col_name}")
+                    except Exception as e:
+                        conn.rollback()
+                        logger.warning(f"[WARN] Could not add column resumes.{col_name}: {e}")
 
         # Create any brand-new tables
         Base.metadata.create_all(bind=engine)

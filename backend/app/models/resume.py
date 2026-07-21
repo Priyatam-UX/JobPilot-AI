@@ -14,6 +14,14 @@ class Resume(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     raw_text: Mapped[str] = mapped_column(Text, nullable=True)
     file_path: Mapped[str] = mapped_column(String(512), nullable=True)
+    
+    # Missing AI & ATS Fields
+    experience_years: Mapped[Optional[float]] = mapped_column(nullable=True, default=0.0)
+    all_skills_flat: Mapped[Optional[list]] = mapped_column(JSON, nullable=True)
+    ats_score: Mapped[Optional[float]] = mapped_column(nullable=True, default=0.0)
+    ats_grade: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    ats_suggestions: Mapped[Optional[list]] = mapped_column(JSON, nullable=True)
+    
     embedding: Mapped[Optional[list]] = mapped_column(Vector(1536), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False

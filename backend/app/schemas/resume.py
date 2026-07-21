@@ -17,6 +17,14 @@ class ResumeResponse(BaseModel):
     user_id: uuid.UUID
     title: str
     file_path: Optional[str] = None
+    
+    # Missing AI & ATS Fields
+    experience_years: Optional[float] = 0.0
+    all_skills_flat: Optional[list] = []
+    ats_score: Optional[float] = 0.0
+    ats_grade: Optional[str] = None
+    ats_suggestions: Optional[list] = []
+
     created_at: datetime
     updated_at: datetime
 
