@@ -10,15 +10,15 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
-async def run_job_ingestion(db: Session, limit: int = 20):
+async def run_job_ingestion(db: Session, limit: int = 20, search_query: str = ""):
     """
     Background task to fetch live jobs from Remotive API, 
     generate OpenAI embeddings for them, and save them to the database.
     """
-    logger.info("Starting background job ingestion...")
+    logger.info(f"Starting background job ingestion... (query: {search_query})")
     
     # 1. Fetch live jobs
-    jobs_data = await fetch_jobs_from_api(limit=limit, search_query="")
+    jobs_data = await fetch_jobs_from_api(limit=limit, search_query=search_query)
     if not jobs_data:
         logger.warning("No jobs fetched from API.")
         return

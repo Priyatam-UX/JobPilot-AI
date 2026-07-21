@@ -79,10 +79,16 @@ def discover_and_match_jobs(
     if vector:
         # We use <-> for L2 distance or <=> for Cosine distance
         # 1 - cosine_distance = cosine similarity
+        query_obj = db.query(Job, Job.embedding.cosine_distance(vector).label('distance')).filter(Job.embedding.isnot(None))
+        
+        if search_query:
+            query_obj = query_obj.filter(
+                (Job.title.ilike(f"%{search_query}%")) | 
+                (Job.description.ilike(f"%{search_query}%"))
+            )
+            
         results = (
-            db.query(Job, Job.embedding.cosine_distance(vector).label('distance'))
-            .filter(Job.embedding.isnot(None))
-            .order_by(Job.embedding.cosine_distance(vector))
+            query_obj.order_by(Job.embedding.cosine_distance(vector))
             .limit(limit)
             .all()
         )
@@ -113,7 +119,13 @@ def discover_and_match_jobs(
             
     else:
         # Fallback to random/latest jobs if no resume is embedded yet
-        fallback_jobs = db.query(Job).limit(limit).all()
+        fallback_query = db.query(Job)
+        if search_query:
+            fallback_query = fallback_query.filter(
+                (Job.title.ilike(f"%{search_query}%")) | 
+                (Job.description.ilike(f"%{search_query}%"))
+            )
+        fallback_jobs = fallback_query.limit(limit).all()
         for j in fallback_jobs:
             job_data = {
                 "id": str(j.id),
