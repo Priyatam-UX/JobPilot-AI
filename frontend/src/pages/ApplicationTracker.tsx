@@ -51,6 +51,7 @@ export function ApplicationTracker() {
 
   const handleDrop = (e: React.DragEvent, targetStatus: string) => {
     e.preventDefault();
+    if (targetStatus === 'applying') return; // System-only state
     const id = e.dataTransfer.getData('applicationId');
     if (id) {
       updateMutation.mutate({ id, data: { status: targetStatus } });
@@ -273,7 +274,7 @@ export function ApplicationTracker() {
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Move to Stage</p>
                   <div className="flex flex-wrap gap-2">
-                    {['applying', 'applied', 'interview', 'offer', 'rejected'].map((s) => (
+                    {['bookmarked', 'applied', 'interview', 'offer', 'rejected'].map((s) => (
                       <button
                         key={s}
                         onClick={() => {
