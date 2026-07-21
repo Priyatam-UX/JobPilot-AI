@@ -48,6 +48,13 @@ export function JobDiscovery() {
     }
   }, [lastMessage, autoApplyJobId]);
 
+  // Fetch live jobs from backend (which fetches from Remotive + scores against resume)
+  const { data: jobs = [], isLoading, isError, error, refetch, isRefetching } = useQuery<JobResponse[]>({
+    queryKey: ['discoverJobs', apiSearchQuery],
+    queryFn: () => jobService.discover(apiSearchQuery),
+    refetchOnWindowFocus: false, // Don't spam the API
+  });
+
   // Keep activeJob in sync with updated query data (for real-time application_status updates)
   useEffect(() => {
     if (activeJob && jobs.length > 0) {
@@ -57,13 +64,6 @@ export function JobDiscovery() {
       }
     }
   }, [jobs, activeJob]);
-
-  // Fetch live jobs from backend (which fetches from Remotive + scores against resume)
-  const { data: jobs = [], isLoading, isError, error, refetch, isRefetching } = useQuery<JobResponse[]>({
-    queryKey: ['discoverJobs', apiSearchQuery],
-    queryFn: () => jobService.discover(apiSearchQuery),
-    refetchOnWindowFocus: false, // Don't spam the API
-  });
 
   const saveJobMutation = useMutation({
     mutationFn: (job: JobResponse) => jobService.create(job),
