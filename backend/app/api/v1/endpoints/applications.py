@@ -133,10 +133,16 @@ async def trigger_automation(
     ).first()
     
     if not app_record:
+        # Get the latest resume version for this resume
+        from app.models.resume import ResumeVersion
+        latest_version = db.query(ResumeVersion).filter(
+            ResumeVersion.resume_id == resume.id
+        ).order_by(ResumeVersion.version_number.desc()).first()
+        
         # Create a new application with status 'applying'
         app_data = ApplicationCreate(
             job_id=py_uuid.UUID(payload.job_id),
-            resume_version_id=resume.id
+            resume_version_id=latest_version.id if latest_version else None
         )
         app_record = service.create_application(current_user.id, app_data)
         app_record.status = "applying"
