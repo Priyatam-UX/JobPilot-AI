@@ -106,6 +106,14 @@ def discover_and_match_jobs(
             _, matched, missing = score_keyword_match(resume_text, job_obj.description or "")
             match_score = min(100, len(matched) * 10 + 30) if matched else 10
             
+            # Check if user already applied/bookmarked this job
+            from app.models.application import Application
+            app = db.query(Application).filter(
+                Application.user_id == user_id,
+                Application.job_id == job_obj.id
+            ).first()
+            app_status = app.status if app else None
+            
             job_data = {
                 "id": str(job_obj.id),
                 "title": job_obj.title,
@@ -118,6 +126,7 @@ def discover_and_match_jobs(
                 "match_score": match_score,
                 "matched_keywords": matched[:5],
                 "missing_keywords": missing[:5],
+                "application_status": app_status,
             }
             scored_jobs.append(job_data)
             
@@ -141,6 +150,14 @@ def discover_and_match_jobs(
             # We can still extract keywords for UI flair
             _, matched, missing = score_keyword_match(resume_text, job_obj.description or "")
             
+            # Check if user already applied/bookmarked this job
+            from app.models.application import Application
+            app = db.query(Application).filter(
+                Application.user_id == user_id,
+                Application.job_id == job_obj.id
+            ).first()
+            app_status = app.status if app else None
+            
             job_data = {
                 "id": str(job_obj.id),
                 "title": job_obj.title,
@@ -153,6 +170,7 @@ def discover_and_match_jobs(
                 "match_score": match_score,
                 "matched_keywords": matched[:5],
                 "missing_keywords": missing[:5],
+                "application_status": app_status,
             }
             scored_jobs.append(job_data)
             
@@ -160,6 +178,14 @@ def discover_and_match_jobs(
         # Fallback to random/latest jobs if no resume is embedded yet
         fallback_jobs = db.query(Job).limit(limit).all()
         for j in fallback_jobs:
+            # Check if user already applied/bookmarked this job
+            from app.models.application import Application
+            app = db.query(Application).filter(
+                Application.user_id == user_id,
+                Application.job_id == j.id
+            ).first()
+            app_status = app.status if app else None
+            
             job_data = {
                 "id": str(j.id),
                 "title": j.title,
@@ -172,6 +198,7 @@ def discover_and_match_jobs(
                 "match_score": 0,
                 "matched_keywords": [],
                 "missing_keywords": [],
+                "application_status": app_status,
             }
             scored_jobs.append(job_data)
 

@@ -28,6 +28,7 @@ class DiscoveredJobResponse(BaseModel):
     match_score: int = 0
     matched_keywords: List[str] = []
     missing_keywords: List[str] = []
+    application_status: Optional[str] = None
 
 
 @router.get("/discover", response_model=List[DiscoveredJobResponse])

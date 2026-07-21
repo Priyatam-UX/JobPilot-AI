@@ -48,6 +48,16 @@ export function JobDiscovery() {
     }
   }, [lastMessage, autoApplyJobId]);
 
+  // Keep activeJob in sync with updated query data (for real-time application_status updates)
+  useEffect(() => {
+    if (activeJob && jobs.length > 0) {
+      const updatedJob = jobs.find((j) => j.id === activeJob.id);
+      if (updatedJob && JSON.stringify(updatedJob) !== JSON.stringify(activeJob)) {
+        setActiveJob(updatedJob);
+      }
+    }
+  }, [jobs, activeJob]);
+
   // Fetch live jobs from backend (which fetches from Remotive + scores against resume)
   const { data: jobs = [], isLoading, isError, error, refetch, isRefetching } = useQuery<JobResponse[]>({
     queryKey: ['discoverJobs', apiSearchQuery],
@@ -306,20 +316,38 @@ export function JobDiscovery() {
                     <Bookmark className="w-4 h-4" />
                     Save
                   </button>
-                  <button
-                    onClick={handleAutoApply}
-                    disabled={autoApplyMutation.isPending}
-                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-bold shadow-md shadow-orange-500/20 transition-all flex items-center gap-2 hover:-translate-y-0.5 animate-pulse-glow"
-                  >
-                    <Rocket className="w-4 h-4" />
-                    Auto Apply
-                  </button>
+                  {activeJob.application_status === 'applied' ? (
+                    <button
+                      disabled
+                      className="px-4 py-2 bg-slate-800 text-slate-500 border border-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                    >
+                      <CheckCircle className="w-4 h-4 text-emerald-500" />
+                      Applied
+                    </button>
+                  ) : activeJob.application_status === 'applying' ? (
+                    <button
+                      disabled
+                      className="px-4 py-2 bg-slate-800 text-slate-500 border border-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                    >
+                      <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+                      Applying...
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleAutoApply}
+                      disabled={autoApplyMutation.isPending}
+                      className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-bold shadow-md shadow-orange-500/20 transition-all flex items-center gap-2 hover:-translate-y-0.5 animate-pulse-glow"
+                    >
+                      <Rocket className="w-4 h-4" />
+                      Auto Apply
+                    </button>
+                  )}
                   {activeJob.url && (
                     <a
                       href={activeJob.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/10 transition-all flex items-center gap-2"
+                      className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-600 to-violet-600 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/10 transition-all flex items-center gap-2"
                     >
                       Apply <ExternalLink className="w-4 h-4" />
                     </a>

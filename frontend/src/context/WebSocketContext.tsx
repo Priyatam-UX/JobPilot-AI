@@ -81,6 +81,7 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
               queryClient.invalidateQueries({ queryKey: ['applications'] });
               queryClient.invalidateQueries({ queryKey: ['applicationCounts'] });
               queryClient.invalidateQueries({ queryKey: ['dashboardSummary'] });
+              queryClient.invalidateQueries({ queryKey: ['discoverJobs'] });
               break;
             case 'RESUME_ANALYZED':
             case 'RESUME_DELETED':

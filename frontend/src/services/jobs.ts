@@ -15,6 +15,7 @@ export interface JobResponse {
   matched_keywords?: string[];
   missing_keywords?: string[];
   status: string;
+  application_status?: string;
   created_at: string;
 }
 
