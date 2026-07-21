@@ -85,21 +85,48 @@ def discover_and_match_jobs(
     resume_text = resume.raw_text if resume else ""
     vector = resume.embedding if resume else None
 
-    # 2. Semantic Search if we have a vector
+    # 2. Semantic Search or Keyword Search
     scored_jobs = []
-    if vector:
-        # We use <-> for L2 distance or <=> for Cosine distance
-        # 1 - cosine_distance = cosine similarity
-        query_obj = db.query(Job, Job.embedding.cosine_distance(vector).label('distance')).filter(Job.embedding.isnot(None))
-        
-        if search_query:
-            query_obj = query_obj.filter(
+    
+    if search_query:
+        # Explicit keyword search: bypass semantic vector requirement to include live jobs
+        # that were just ingested but don't have embeddings (OpenAI disabled).
+        results = (
+            db.query(Job)
+            .filter(
                 (Job.title.ilike(f"%{search_query}%")) | 
                 (Job.description.ilike(f"%{search_query}%"))
             )
+            .limit(limit)
+            .all()
+        )
+        
+        for job_obj in results:
+            _, matched, missing = score_keyword_match(resume_text, job_obj.description or "")
+            match_score = min(100, len(matched) * 10 + 30) if matched else 10
             
+            job_data = {
+                "id": str(job_obj.id),
+                "title": job_obj.title,
+                "company_name": job_obj.company_name,
+                "location": job_obj.location,
+                "salary": job_obj.salary,
+                "description": job_obj.description,
+                "url": job_obj.source_url,
+                "source_portal": job_obj.source_portal,
+                "match_score": match_score,
+                "matched_keywords": matched[:5],
+                "missing_keywords": missing[:5],
+            }
+            scored_jobs.append(job_data)
+            
+    elif vector:
+        # We use <-> for L2 distance or <=> for Cosine distance
+        # 1 - cosine_distance = cosine similarity
         results = (
-            query_obj.order_by(Job.embedding.cosine_distance(vector))
+            db.query(Job, Job.embedding.cosine_distance(vector).label('distance'))
+            .filter(Job.embedding.isnot(None))
+            .order_by(Job.embedding.cosine_distance(vector))
             .limit(limit)
             .all()
         )
@@ -130,13 +157,7 @@ def discover_and_match_jobs(
             
     else:
         # Fallback to random/latest jobs if no resume is embedded yet
-        fallback_query = db.query(Job)
-        if search_query:
-            fallback_query = fallback_query.filter(
-                (Job.title.ilike(f"%{search_query}%")) | 
-                (Job.description.ilike(f"%{search_query}%"))
-            )
-        fallback_jobs = fallback_query.limit(limit).all()
+        fallback_jobs = db.query(Job).limit(limit).all()
         for j in fallback_jobs:
             job_data = {
                 "id": str(j.id),
