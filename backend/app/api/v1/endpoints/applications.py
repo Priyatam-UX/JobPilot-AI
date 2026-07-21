@@ -120,6 +120,31 @@ async def trigger_automation(
         "phone": "555-0199"
     }
     
+    # Create the application record in the database first
+    from app.services.application_service import ApplicationService
+    service = ApplicationService(db)
+    
+    # Check if application already exists
+    import uuid as py_uuid
+    from app.models.application import Application
+    app_record = db.query(Application).filter(
+        Application.user_id == current_user.id, 
+        Application.job_id == py_uuid.UUID(payload.job_id)
+    ).first()
+    
+    if not app_record:
+        # Create a new application with status 'applying'
+        app_data = ApplicationCreate(
+            job_id=py_uuid.UUID(payload.job_id),
+            resume_version_id=resume.id
+        )
+        app_record = service.create_application(current_user.id, app_data)
+        app_record.status = "applying"
+        db.commit()
+    else:
+        app_record.status = "applying"
+        db.commit()
+        
     # Run in background
     background_tasks.add_task(
         run_auto_apply_pipeline,
