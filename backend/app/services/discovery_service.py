@@ -68,7 +68,7 @@ async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[D
 def discover_and_match_jobs(
     db: Session,
     user_id: uuid.UUID,
-    limit: int = 15,
+    limit: int = 100,
     search_query: str = "",
 ) -> List[Dict[str, Any]]:
     """
