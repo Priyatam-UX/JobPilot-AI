@@ -14,8 +14,9 @@ const WebSocketContext = createContext<WebSocketContextType>({
 
 export const useWebSocket = () => useContext(WebSocketContext);
 
-// Base URL handling for Render production deployment
-const WS_BASE_URL = 'wss://jobpilot-backend-l4o2.onrender.com/api/v1/ws';
+// Base URL handling for WebSocket connection (derive from API URL to prevent mismatch)
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const WS_BASE_URL = API_URL.replace('http://', 'ws://').replace('https://', 'wss://') + '/ws';
 
 export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);

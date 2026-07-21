@@ -17,7 +17,7 @@ def optimize_resume_bullets(resume_text: str, job_description: str) -> dict:
     Uses Groq to rewrite the resume summary and bullet points 
     to maximize ATS keyword density for a specific job description.
     """
-    if not settings.GROQ_API_KEY:
+    if not settings.GROQ_API_KEY or settings.GROQ_API_KEY == "mock-key":
         logger.warning("GROQ_API_KEY not set. Returning original resume data.")
         return {"message": "API key not configured."}
         
@@ -57,8 +57,9 @@ def optimize_resume_bullets(resume_text: str, job_description: str) -> dict:
 
 def generate_tailored_cover_letter(resume_text: str, job_description: str) -> str:
     """Generates a concise, impactful cover letter."""
-    if not settings.GROQ_API_KEY:
-        return "Cover letter generation requires an API key."
+    if not settings.GROQ_API_KEY or settings.GROQ_API_KEY == "mock-key":
+        logger.warning("GROQ_API_KEY not set or invalid. Returning fallback cover letter.")
+        return "Cover letter generation requires a valid API key. This is a placeholder cover letter."
         
     llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, groq_api_key=settings.GROQ_API_KEY)
     
