@@ -224,3 +224,63 @@ def analyze_star_response(question: str, answer: str) -> Dict[str, Any]:
             "word_count": word_count,
             "quantification_count": 0,
         }
+
+class GeneratedQuestion(BaseModel):
+    category: str
+    difficulty: str
+    question: str
+    reason: str
+
+class GeneratedQuestionsResponse(BaseModel):
+    questions: List[GeneratedQuestion]
+
+def generate_interview_questions(job_description: str, resume_text: str) -> List[Dict[str, Any]]:
+    """
+    Generate tailored interview questions based on the job description and user's resume.
+    """
+    if not settings.GROQ_API_KEY or settings.GROQ_API_KEY == "mock-key":
+        return [
+            {
+                "category": "technical",
+                "difficulty": "medium",
+                "question": "⚠️ Groq API Key Not Configured. Please set it in .env to generate real questions.",
+                "reason": "Fallback"
+            }
+        ]
+
+    try:
+        llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, api_key=settings.GROQ_API_KEY)
+        structured_llm = llm.with_structured_output(GeneratedQuestionsResponse)
+
+        prompt = f"""
+        You are an elite Tech Recruiter. The candidate is interviewing for a job with this description:
+        {job_description[:3000]}
+        
+        The candidate's resume is:
+        {resume_text[:3000]}
+
+        Task: Generate exactly 5 highly tailored interview questions (a mix of technical, behavioral, and HR) 
+        that directly probe the intersections and gaps between their resume and the job description.
+        Provide a 'reason' for why each question is being asked.
+        """
+        
+        prompt_template = ChatPromptTemplate.from_messages([
+            ("system", "You are an expert interviewer."),
+            ("user", "{prompt}"),
+        ])
+
+        chain = prompt_template | structured_llm
+        feedback = chain.invoke({"prompt": prompt})
+
+        return [q.model_dump() for q in feedback.questions]
+
+    except Exception as e:
+        logger.error(f"Error calling Groq API for generating questions: {e}")
+        return [
+             {
+                "category": "error",
+                "difficulty": "error",
+                "question": f"Error generating questions: {str(e)}",
+                "reason": "Error"
+            }
+        ]

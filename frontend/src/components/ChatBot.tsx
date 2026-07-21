@@ -10,12 +10,24 @@ interface Message {
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hi! I'm your Job Copilot AI Assistant. How can I help you today? I can review your resume, help you prep for an interview, or give you advice on a specific job." }
-  ]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = localStorage.getItem('chatbot_messages');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse chatbot messages from localStorage', e);
+      }
+    }
+    return [{ role: 'assistant', content: "Hi! I'm your Job Copilot AI Assistant. How can I help you today? I can review your resume, help you prep for an interview, or give you advice on a specific job." }];
+  });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    localStorage.setItem('chatbot_messages', JSON.stringify(messages));
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

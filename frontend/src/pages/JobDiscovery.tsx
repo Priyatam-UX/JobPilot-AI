@@ -4,6 +4,7 @@ import { jobService, JobResponse } from '../services/jobs';
 import { applicationService } from '../services/applications';
 import { useWebSocket } from '../context/WebSocketContext';
 import { AutoApplyModal } from '../components/AutoApplyModal';
+import { interviewService, GeneratedQuestion } from '../services/interview';
 import { motion } from 'framer-motion';
 import { TiltCard } from '../components/TiltCard';
 import {
@@ -20,7 +21,10 @@ import {
   Loader2,
   RefreshCw,
   Rocket,
-  ArrowLeft
+  ArrowLeft,
+  BrainCircuit,
+  MessageSquare,
+  HelpCircle
 } from 'lucide-react';
 
 export function JobDiscovery() {
@@ -33,16 +37,15 @@ export function JobDiscovery() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [autoApplyStatus, setAutoApplyStatus] = useState<'idle' | 'in_progress' | 'success' | 'error'>('idle');
   const [autoApplyStep, setAutoApplyStep] = useState('');
-  const [autoApplyJobId, setAutoApplyJobId] = useState<string | null>(null);
   const { lastMessage } = useWebSocket();
 
   // Listen to WebSocket events for Auto Apply progress
   useEffect(() => {
-    if (lastMessage?.type === 'AUTO_APPLY_PROGRESS' && autoApplyJobId === lastMessage.data.job_id) {
+    if (lastMessage?.type === 'AUTO_APPLY_PROGRESS' && activeJob?.id === lastMessage.data.job_id) {
       setAutoApplyStep(lastMessage.data.step);
       setAutoApplyStatus(lastMessage.data.status);
     }
-  }, [lastMessage, autoApplyJobId]);
+  }, [lastMessage, activeJob?.id]);
 
   // Fetch live jobs from backend (which fetches from Remotive + scores against resume)
   const { data: jobs = [], isLoading, refetch, isRefetching } = useQuery<JobResponse[]>({
@@ -76,9 +79,6 @@ export function JobDiscovery() {
       // 1. Ensure job exists in DB
       const savedJob = await saveJobMutation.mutateAsync(job);
       
-      // Store the true database UUID to match with WebSocket events
-      setAutoApplyJobId(savedJob.id);
-      
       // 2. Trigger the pipeline
       return applicationService.automate({
         job_id: savedJob.id,
@@ -93,6 +93,10 @@ export function JobDiscovery() {
       setAutoApplyStatus('error');
       setAutoApplyStep(error.message || 'Failed to start pipeline');
     }
+  });
+
+  const generateQuestionsMutation = useMutation({
+    mutationFn: (job: JobResponse) => interviewService.generateQuestions(job.description || ''),
   });
 
   const handleBookmark = (e: React.MouseEvent, job: JobResponse) => {
@@ -352,6 +356,65 @@ export function JobDiscovery() {
                     <p>No description provided.</p>
                   )}
                 </div>
+              </div>
+
+              {/* AI Interview Questions Generator */}
+              <div className="mt-8 pt-8 border-t border-slate-800/50">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                      <BrainCircuit className="w-4 h-4 text-indigo-400" /> Interview Questions Prep
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Generate highly tailored questions probing the gaps between your resume and this job.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => generateQuestionsMutation.mutate(activeJob)}
+                    disabled={generateQuestionsMutation.isPending}
+                    className="px-4 py-2 bg-slate-900 border border-slate-700 hover:border-indigo-500 hover:bg-slate-800 text-indigo-300 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {generateQuestionsMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <MessageSquare className="w-4 h-4" />
+                    )}
+                    {generateQuestionsMutation.data ? 'Regenerate Questions' : 'Generate AI Questions'}
+                  </button>
+                </div>
+
+                {generateQuestionsMutation.isError && (
+                  <div className="p-4 bg-red-950/20 border border-red-900/30 rounded-xl text-red-400 text-sm mb-6">
+                    {generateQuestionsMutation.error.message}
+                  </div>
+                )}
+
+                {generateQuestionsMutation.data?.questions && generateQuestionsMutation.data.questions.length > 0 && (
+                  <div className="space-y-4">
+                    {generateQuestionsMutation.data.questions.map((q: GeneratedQuestion, i: number) => (
+                      <div key={i} className="p-5 bg-slate-900/50 border border-slate-800 rounded-2xl relative overflow-hidden group">
+                        <div className={`absolute top-0 left-0 w-1 h-full ${
+                          q.category === 'technical' ? 'bg-indigo-500' :
+                          q.category === 'behavioral' ? 'bg-emerald-500' :
+                          q.category === 'error' ? 'bg-red-500' : 'bg-amber-500'
+                        }`} />
+                        <div className="flex gap-2 items-start mb-2">
+                          <HelpCircle className="w-4 h-4 text-slate-400 mt-0.5" />
+                          <h4 className="font-bold text-slate-200 text-sm">{q.question}</h4>
+                        </div>
+                        <div className="pl-6 text-xs text-slate-400">
+                          <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px] mr-2">Why they'll ask this:</span>
+                          {q.reason}
+                        </div>
+                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="px-2 py-1 bg-slate-800 rounded text-[10px] uppercase font-bold text-slate-400">
+                            {q.difficulty}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ) : (

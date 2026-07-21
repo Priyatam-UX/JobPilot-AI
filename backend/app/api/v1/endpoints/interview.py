@@ -6,6 +6,8 @@ from typing import Optional, List
 from pydantic import BaseModel
 from app.api.dependencies import get_current_user
 from app.models.user import User
+from app.api.dependencies import get_db
+from sqlalchemy.orm import Session
 from app.services.interview_service import get_questions, analyze_star_response
 
 router = APIRouter(prefix="/interview", tags=["Interview"])
@@ -48,3 +50,28 @@ def analyze_answer(
     action verbs usage, and provides specific improvement suggestions.
     """
     return analyze_star_response(payload.question, payload.answer)
+
+class GenerateQuestionsRequest(BaseModel):
+    job_description: str
+
+@router.post("/generate")
+def generate_questions(
+    payload: GenerateQuestionsRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Generate 5 highly tailored interview questions based on the candidate's latest resume and a specific JD.
+    """
+    from app.services.resume_service import ResumeService
+    service = ResumeService(db)
+    # Get user's latest resume
+    from app.models.resume import Resume
+    resume = db.query(Resume).filter(Resume.user_id == current_user.id).order_by(Resume.created_at.desc()).first()
+    
+    if not resume or not resume.raw_text:
+        return {"questions": []}
+        
+    from app.services.interview_service import generate_interview_questions
+    questions = generate_interview_questions(payload.job_description, resume.raw_text)
+    return {"questions": questions}

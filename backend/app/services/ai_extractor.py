@@ -41,8 +41,8 @@ def extract_resume_data_with_ai(raw_text: str) -> dict:
     Uses Groq to extract highly structured data from raw resume text.
     Returns a dictionary mapping exactly to ResumeExtractionSchema.
     """
-    if not settings.GROQ_API_KEY:
-        logger.warning("GROQ_API_KEY not set. Falling back to offline extraction.")
+    if not settings.GROQ_API_KEY or settings.GROQ_API_KEY == "mock-key":
+        logger.warning("GROQ_API_KEY not set or invalid. Falling back to offline extraction.")
         return get_fallback_extraction(raw_text)
         
     try:
