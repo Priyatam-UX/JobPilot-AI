@@ -38,7 +38,7 @@ export function JobDiscovery() {
   const [autoApplyStatus, setAutoApplyStatus] = useState<'idle' | 'in_progress' | 'success' | 'error'>('idle');
   const [autoApplyStep, setAutoApplyStep] = useState('');
   const [autoApplyJobId, setAutoApplyJobId] = useState<string | null>(null);
-  const { lastMessage } = useWebSocket();
+  const { lastMessage, isConnected } = useWebSocket();
 
   // Listen to WebSocket events for Auto Apply progress
   useEffect(() => {
@@ -141,6 +141,11 @@ export function JobDiscovery() {
         <div>
           <h2 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
             <Zap className="w-6 h-6 text-indigo-400" /> Live Job Discovery
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+              isConnected ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20 animate-pulse'
+            }`}>
+              {isConnected ? 'Live' : 'Offline'}
+            </span>
           </h2>
           <p className="text-sm text-slate-400 mt-1">
             Real-time remote software jobs, scored against your active resume.
