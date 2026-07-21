@@ -112,14 +112,52 @@ async def run_auto_apply_pipeline(
             cover_letter=cover_letter
         )
         
-        # Step 4: Update application status in DB to "applied"
-        import uuid as py_uuid
+        # Step 4: Save Tailored Cover Letter to DB
+        from app.models.cover_letter import CoverLetter as DB_CoverLetter
+        db_cover_letter = DB_CoverLetter(
+            user_id=py_uuid.UUID(user_id),
+            job_id=py_uuid.UUID(job_id),
+            title=f"Cover Letter for Job {job_id[:8]}",
+            content=cover_letter
+        )
+        db.add(db_cover_letter)
+        db.commit()
+
+        # Step 5: Save Tailored CV as a new ResumeVersion
+        from app.models.resume import ResumeVersion, Resume
+        import os
+        # Find user's active resume ID
+        resume_record = db.query(Resume).filter(
+            Resume.user_id == py_uuid.UUID(user_id)
+        ).order_by(Resume.created_at.desc()).first()
+        
+        db_resume_version = None
+        if resume_record:
+            latest_version = db.query(ResumeVersion).filter(
+                ResumeVersion.resume_id == resume_record.id
+            ).order_by(ResumeVersion.version_number.desc()).first()
+            next_ver = (latest_version.version_number + 1) if latest_version else 1
+            
+            db_resume_version = ResumeVersion(
+                resume_id=resume_record.id,
+                version_number=next_ver,
+                title=f"Tailored CV for Job {job_id[:8]}",
+                raw_text=resume_text,
+                file_path=f"/api/v1/generated_cvs/{os.path.basename(tailored_cv_path)}"
+            )
+            db.add(db_resume_version)
+            db.commit()
+
+        # Step 6: Update application status in DB to "applied" and link documents
         app = db.query(Application).filter(
             Application.user_id == py_uuid.UUID(user_id), 
             Application.job_id == py_uuid.UUID(job_id)
         ).first()
         if app:
             app.status = "applied"
+            app.cover_letter_id = db_cover_letter.id
+            if db_resume_version:
+                app.resume_version_id = db_resume_version.id
             db.commit()
             
             # Notify frontend of DB change

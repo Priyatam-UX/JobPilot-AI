@@ -4,6 +4,23 @@ from typing import Optional
 from pydantic import BaseModel
 
 
+class ResumeVersionSummary(BaseModel):
+    id: uuid.UUID
+    version_number: int
+    title: str
+    file_path: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+class CoverLetterSummary(BaseModel):
+    id: uuid.UUID
+    title: str
+    content: str
+
+    model_config = {"from_attributes": True}
+
+
 class ApplicationCreate(BaseModel):
     job_id: uuid.UUID
     resume_version_id: Optional[uuid.UUID] = None
@@ -50,6 +67,8 @@ class ApplicationResponse(BaseModel):
     updated_at: datetime
     # Embedded job details so frontend can display title + company without extra calls
     job: Optional[JobSummary] = None
+    resume_version: Optional[ResumeVersionSummary] = None
+    cover_letter: Optional[CoverLetterSummary] = None
 
     model_config = {"from_attributes": True}
 

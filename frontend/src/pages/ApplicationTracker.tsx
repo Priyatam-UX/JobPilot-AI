@@ -222,6 +222,53 @@ export function ApplicationTracker() {
                   )}
                 </div>
 
+                {/* AI Tailored Documents */}
+                {(selectedApp.resume_version || selectedApp.cover_letter) && (
+                  <div className="space-y-4 p-5 rounded-2xl bg-indigo-950/10 border border-indigo-500/20">
+                    <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider">AI Tailored Documents</p>
+                    
+                    {selectedApp.resume_version && (
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-bold text-white">Tailored CV / Resume</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{selectedApp.resume_version.title}</p>
+                        </div>
+                        {selectedApp.resume_version.file_path && (
+                          <a
+                            href={(() => {
+                              const filePath = selectedApp.resume_version.file_path;
+                              if (filePath.startsWith('http')) return filePath;
+                              const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+                              if (base.startsWith('/')) {
+                                return filePath;
+                              } else {
+                                const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base;
+                                const cleanPath = filePath.startsWith('/api/v1') ? filePath.replace('/api/v1', '') : filePath;
+                                return `${cleanBase}${cleanPath}`;
+                              }
+                            })()}
+                            download
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/20 transition-all"
+                          >
+                            Download DOCX
+                          </a>
+                        )}
+                      </div>
+                    )}
+
+                    {selectedApp.cover_letter && (
+                      <div className="space-y-2 border-t border-slate-900/60 pt-3">
+                        <p className="text-xs font-bold text-white">Tailored Cover Letter</p>
+                        <div className="bg-slate-900/60 border border-slate-900 rounded-xl p-4 max-h-48 overflow-y-auto text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">
+                          {selectedApp.cover_letter.content}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Move to status buttons */}
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Move to Stage</p>

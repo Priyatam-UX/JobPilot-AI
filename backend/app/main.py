@@ -32,6 +32,12 @@ app.add_middleware(
 # Mount versioned API router
 app.include_router(api_router)
 
+# Mount static files directory for generated tailored CVs
+from fastapi.staticfiles import StaticFiles
+import os
+os.makedirs("generated_cvs", exist_ok=True)
+app.mount("/api/v1/generated_cvs", StaticFiles(directory="generated_cvs"), name="generated_cvs")
+
 
 @app.on_event("startup")
 async def on_startup():
