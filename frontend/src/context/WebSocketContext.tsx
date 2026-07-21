@@ -16,7 +16,13 @@ export const useWebSocket = () => useContext(WebSocketContext);
 
 // Base URL handling for WebSocket connection (derive from API URL to prevent mismatch)
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-const WS_BASE_URL = API_URL.replace('http://', 'ws://').replace('https://', 'wss://') + '/ws';
+let WS_BASE_URL = '';
+if (API_URL.startsWith('/')) {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  WS_BASE_URL = `${protocol}//${window.location.host}${API_URL}/ws`;
+} else {
+  WS_BASE_URL = API_URL.replace('http://', 'ws://').replace('https://', 'wss://') + '/ws';
+}
 
 export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
