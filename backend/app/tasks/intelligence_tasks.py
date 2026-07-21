@@ -1,5 +1,6 @@
 import logging
 import asyncio
+import uuid as py_uuid
 from sqlalchemy.orm import Session
 from app.core.websockets import manager
 from app.services.ai_extractor import extract_resume_data_with_ai
