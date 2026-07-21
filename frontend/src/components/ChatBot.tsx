@@ -37,7 +37,7 @@ export function ChatBot() {
     try {
       // Reuse the Career Coach endpoint for the global assistant
       // Passing the history so it has conversational memory
-      const response = await apiRequest<{response: string}>('/coach/chat', {
+      const response = await apiRequest<{role: string, content: string}>('/coach/chat', {
         method: 'POST',
         body: JSON.stringify({ 
           message: userMessage,
@@ -45,7 +45,7 @@ export function ChatBot() {
         })
       });
 
-      setMessages(prev => [...prev, { role: 'assistant', content: response.response }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: response.content }]);
     } catch (error) {
       console.error("ChatBot error:", error);
       setMessages(prev => [...prev, { 
