@@ -113,7 +113,11 @@ async def run_auto_apply_pipeline(
         )
         
         # Step 4: Update application status in DB to "applied"
-        app = db.query(Application).filter(Application.user_id == user_id, Application.job_id == job_id).first()
+        import uuid as py_uuid
+        app = db.query(Application).filter(
+            Application.user_id == py_uuid.UUID(user_id), 
+            Application.job_id == py_uuid.UUID(job_id)
+        ).first()
         if app:
             app.status = "applied"
             db.commit()

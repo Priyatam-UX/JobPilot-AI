@@ -20,6 +20,14 @@ class TailoredCV(BaseModel):
 
 def generate_tailored_content(resume_text: str, job_description: str) -> TailoredCV:
     """Uses LLM to rewrite the resume summary and bullets specifically for the JD."""
+    if not settings.GROQ_API_KEY or settings.GROQ_API_KEY == "mock-key":
+        logger.warning("GROQ_API_KEY not set. Using fallback CV content.")
+        return TailoredCV(
+            summary=resume_text[:200] + "...", 
+            experience_bullets=[resume_text[:100] if len(resume_text) > 100 else resume_text, "Fallback experience bullet due to missing API key."],
+            skills=["Fallback", "Skill"]
+        )
+
     llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, groq_api_key=settings.GROQ_API_KEY)
     
     prompt = PromptTemplate.from_template(
