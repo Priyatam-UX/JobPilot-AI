@@ -22,9 +22,10 @@ def generate_tailored_content(resume_text: str, job_description: str) -> Tailore
     """Uses LLM to rewrite the resume summary and bullets specifically for the JD."""
     if not settings.GROQ_API_KEY or settings.GROQ_API_KEY == "mock-key":
         logger.warning("GROQ_API_KEY not set. Using fallback CV content.")
+        safe_resume = resume_text or ""
         return TailoredCV(
-            summary=resume_text[:200] + "...", 
-            experience_bullets=[resume_text[:100] if len(resume_text) > 100 else resume_text, "Fallback experience bullet due to missing API key."],
+            summary=safe_resume[:200] + "...", 
+            experience_bullets=[safe_resume[:100] if len(safe_resume) > 100 else safe_resume, "Fallback experience bullet due to missing API key."],
             skills=["Fallback", "Skill"]
         )
 
@@ -49,9 +50,10 @@ def generate_tailored_content(resume_text: str, job_description: str) -> Tailore
         return chain.invoke({"resume": resume_text, "jd": job_description})
     except Exception as e:
         logger.warning(f"OpenAI tailoring failed (likely quota limit). Falling back to original resume: {e}")
+        safe_resume = resume_text or ""
         return TailoredCV(
-            summary=resume_text[:200] + "...", 
-            experience_bullets=[resume_text[:100], "Fallback experience bullet due to API limits."],
+            summary=safe_resume[:200] + "...", 
+            experience_bullets=[safe_resume[:100] if len(safe_resume) > 100 else safe_resume, "Fallback experience bullet due to API limits."],
             skills=["Fallback", "Skill"]
         )
 

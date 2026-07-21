@@ -98,8 +98,16 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
 
     connect();
 
+    // Heartbeat to prevent Render from closing idle connections (55s limit)
+    const heartbeatInterval = setInterval(() => {
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, 30000);
+
     return () => {
       clearTimeout(reconnectTimeout);
+      clearInterval(heartbeatInterval);
       if (ws.current) {
         ws.current.close();
         ws.current = null;
