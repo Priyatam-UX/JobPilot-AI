@@ -37,15 +37,16 @@ export function JobDiscovery() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [autoApplyStatus, setAutoApplyStatus] = useState<'idle' | 'in_progress' | 'success' | 'error'>('idle');
   const [autoApplyStep, setAutoApplyStep] = useState('');
+  const [autoApplyJobId, setAutoApplyJobId] = useState<string | null>(null);
   const { lastMessage } = useWebSocket();
 
   // Listen to WebSocket events for Auto Apply progress
   useEffect(() => {
-    if (lastMessage?.type === 'AUTO_APPLY_PROGRESS' && activeJob?.id === lastMessage.data.job_id) {
+    if (lastMessage?.type === 'AUTO_APPLY_PROGRESS' && autoApplyJobId === lastMessage.data.job_id) {
       setAutoApplyStep(lastMessage.data.step);
       setAutoApplyStatus(lastMessage.data.status);
     }
-  }, [lastMessage, activeJob?.id]);
+  }, [lastMessage, autoApplyJobId]);
 
   // Fetch live jobs from backend (which fetches from Remotive + scores against resume)
   const { data: jobs = [], isLoading, refetch, isRefetching } = useQuery<JobResponse[]>({
@@ -78,6 +79,9 @@ export function JobDiscovery() {
     mutationFn: async (job: JobResponse) => {
       // 1. Ensure job exists in DB
       const savedJob = await saveJobMutation.mutateAsync(job);
+      
+      // Set the true DB UUID for WebSocket tracking
+      setAutoApplyJobId(savedJob.id);
       
       // 2. Trigger the pipeline
       return applicationService.automate({
