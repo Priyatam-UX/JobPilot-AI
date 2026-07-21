@@ -16,7 +16,7 @@ import re
 
 logger = logging.getLogger(__name__)
 
-REMOTIVE_URL = "https://remotive.com/api/remote-jobs"
+JOBICY_URL = "https://jobicy.com/api/v2/remote-jobs"
 
 def clean_html(raw_html: str) -> str:
     """Strip HTML tags from job descriptions for better analysis."""
@@ -27,10 +27,15 @@ def clean_html(raw_html: str) -> str:
     return re.sub(r'\s+', ' ', text_content).strip()
 
 async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[Dict[str, Any]]:
-    """Fetch live jobs from Remotive API (used by background ingest task)."""
+    """Fetch live jobs from Jobicy API (used by background ingest task)."""
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            url = f"{REMOTIVE_URL}?search={search_query}&limit={limit}" if search_query else f"{REMOTIVE_URL}?category=software-dev&limit={limit}"
+            url = f"{JOBICY_URL}?count={limit}"
+            if search_query:
+                url += f"&tag={search_query}"
+            else:
+                url += "&industry=engineering"
+                
             response = await client.get(url)
             response.raise_for_status()
             data = response.json()
@@ -38,15 +43,21 @@ async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[D
             
             mapped_jobs = []
             for j in jobs:
-                description = clean_html(j.get("description", ""))
+                description = clean_html(j.get("jobDescription", ""))
+                
+                # Format salary if available
+                salary_str = "Competitive"
+                if j.get("salaryMin") and j.get("salaryMax"):
+                    salary_str = f"{j.get('salaryCurrency', '$')}{j.get('salaryMin')} - {j.get('salaryMax')} {j.get('salaryPeriod', 'yearly')}"
+                
                 mapped_jobs.append({
-                    "title": j.get("title", ""),
-                    "company_name": j.get("company_name", ""),
-                    "location": j.get("candidate_required_location", "Remote"),
-                    "salary": j.get("salary") or "Competitive",
+                    "title": j.get("jobTitle", ""),
+                    "company_name": j.get("companyName", ""),
+                    "location": j.get("jobGeo", "Remote"),
+                    "salary": salary_str,
                     "description": description,
                     "url": j.get("url", ""),
-                    "source_portal": "Remotive",
+                    "source_portal": "Jobicy",
                 })
             return mapped_jobs
     except Exception as e:

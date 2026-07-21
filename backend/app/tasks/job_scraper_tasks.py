@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 async def run_job_ingestion(db: Session, limit: int = 20, search_query: str = ""):
     """
-    Background task to fetch live jobs from Remotive API, 
+    Background task to fetch live jobs from Jobicy API, 
     generate OpenAI embeddings for them, and save them to the database.
     """
     logger.info(f"Starting background job ingestion... (query: {search_query})")
