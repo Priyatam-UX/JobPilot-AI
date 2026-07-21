@@ -91,15 +91,15 @@ def discover_and_match_jobs(
     if search_query:
         # Explicit keyword search: bypass semantic vector requirement to include live jobs
         # that were just ingested but don't have embeddings (OpenAI disabled).
-        results = (
-            db.query(Job)
-            .filter(
-                (Job.title.ilike(f"%{search_query}%")) | 
-                (Job.description.ilike(f"%{search_query}%"))
+        query_obj = db.query(Job)
+        words = [w.strip() for w in search_query.split() if w.strip()]
+        for word in words:
+            query_obj = query_obj.filter(
+                (Job.title.ilike(f"%{word}%")) | 
+                (Job.description.ilike(f"%{word}%"))
             )
-            .limit(limit)
-            .all()
-        )
+            
+        results = query_obj.limit(limit).all()
         
         for job_obj in results:
             _, matched, missing = score_keyword_match(resume_text, job_obj.description or "")
