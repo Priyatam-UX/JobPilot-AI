@@ -1,6 +1,6 @@
 import logging
 import asyncio
-from playwright.async_api import async_playwright
+
 from app.core.websockets import manager
 
 logger = logging.getLogger(__name__)
