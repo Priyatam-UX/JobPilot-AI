@@ -80,7 +80,7 @@ def create_job(
     if existing:
         return existing
         
-    return repo.create(job_in)
+    return repo.create(job_in.model_dump())
 
 
 @router.get("/search", response_model=List[JobResponse])

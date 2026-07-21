@@ -32,7 +32,8 @@ async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[D
         async with httpx.AsyncClient(timeout=10.0) as client:
             url = f"{JOBICY_URL}?count={limit}"
             if search_query:
-                url += f"&tag={search_query}"
+                import urllib.parse
+                url += f"&tag={urllib.parse.quote(search_query)}"
             else:
                 url += "&industry=engineering"
                 

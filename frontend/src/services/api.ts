@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://jobpilot-backend-l4o2.onrender.com/api/v1';
 
 /**
  * Core API request function with automatic retry logic.
@@ -10,7 +10,12 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 3): P
       const response = await fetch(url, options);
       return response;
     } catch (err) {
-      if (attempt === retries) throw err;
+      if (attempt === retries) {
+        if (err instanceof TypeError) {
+          throw new Error(`Network Error (${err.message}). URL: ${url}. Is backend running?`);
+        }
+        throw err;
+      }
       // Wait: 1s, 2s, 4s — exponential backoff
       await new Promise((res) => setTimeout(res, 1000 * Math.pow(2, attempt - 1)));
     }

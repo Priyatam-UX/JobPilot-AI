@@ -38,7 +38,7 @@ export function ResumeLibrary() {
   // UI State
   const [showHistory, setShowHistory] = useState(false);
 
-  const { data: resumes = [] } = useQuery({
+  const { data: resumes = [], isError: isResumesError, error: resumesError, refetch: refetchResumes } = useQuery({
     queryKey: ['resumes'],
     queryFn: resumeService.list,
   });
@@ -497,7 +497,12 @@ export function ResumeLibrary() {
               >
                 <div className="glass rounded-3xl p-6 shadow-md border border-slate-800/50">
                   <h3 className="text-lg font-bold text-white mb-4">Past Resume Scans</h3>
-                  {resumes.length === 0 ? (
+                  {isResumesError ? (
+                    <div className="p-4 bg-red-950/20 border border-red-900/30 rounded-xl text-center">
+                      <p className="text-red-400 text-sm mb-2">{resumesError instanceof Error ? resumesError.message : 'Failed to load past resumes.'}</p>
+                      <button onClick={() => refetchResumes()} className="text-xs text-red-300 hover:text-red-200 underline">Try again</button>
+                    </div>
+                  ) : resumes.length === 0 ? (
                     <p className="text-slate-500 text-sm text-center py-4">No past scans found.</p>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

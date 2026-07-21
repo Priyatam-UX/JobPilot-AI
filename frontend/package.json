@@ -29,6 +29,7 @@
     "clsx": "^2.1.0",
     "framer-motion": "^12.42.2",
     "lucide-react": "^0.460.0",
+    "playwright": "^1.61.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.22.3",

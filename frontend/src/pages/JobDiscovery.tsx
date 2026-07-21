@@ -49,7 +49,7 @@ export function JobDiscovery() {
   }, [lastMessage, autoApplyJobId]);
 
   // Fetch live jobs from backend (which fetches from Remotive + scores against resume)
-  const { data: jobs = [], isLoading, refetch, isRefetching } = useQuery<JobResponse[]>({
+  const { data: jobs = [], isLoading, isError, error, refetch, isRefetching } = useQuery<JobResponse[]>({
     queryKey: ['discoverJobs', apiSearchQuery],
     queryFn: () => jobService.discover(apiSearchQuery),
     refetchOnWindowFocus: false, // Don't spam the API
@@ -95,7 +95,12 @@ export function JobDiscovery() {
     },
     onError: (error: any) => {
       setAutoApplyStatus('error');
-      setAutoApplyStep(error.message || 'Failed to start pipeline');
+      const errorMessage = error?.message || String(error);
+      if (errorMessage.includes('Failed to fetch')) {
+        setAutoApplyStep('Network Error: Could not connect to backend. Are you sure the backend is running?');
+      } else {
+        setAutoApplyStep(errorMessage);
+      }
     }
   });
 
@@ -173,6 +178,18 @@ export function JobDiscovery() {
             <div className="flex flex-col items-center justify-center py-20 text-slate-500">
               <Loader2 className="w-8 h-8 animate-spin text-indigo-400 mb-4" />
               <p className="text-sm">Fetching and scoring live jobs...</p>
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center px-4 bg-red-950/10 rounded-2xl border border-red-900/20">
+              <AlertCircle className="w-10 h-10 text-red-500/80 mb-4" />
+              <h3 className="text-red-400 font-bold mb-2">Failed to load jobs</h3>
+              <p className="text-red-300/80 text-sm mb-4 max-w-xs">{error instanceof Error ? error.message : 'An unexpected error occurred.'}</p>
+              <button 
+                onClick={() => refetch()}
+                className="px-4 py-2 bg-red-900/40 hover:bg-red-900/60 border border-red-800/50 text-red-300 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" /> Try Again
+              </button>
             </div>
           ) : jobs.length === 0 ? (
             <div className="text-center py-12 text-slate-500 text-sm">

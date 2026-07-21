@@ -24,7 +24,7 @@ export function ApplicationTracker() {
     { id: 'rejected', name: 'Rejected', color: 'text-red-400 border-red-500/20', bg: 'bg-red-500/5' },
   ];
 
-  const { data: applications = [], isLoading } = useQuery<any[]>({
+  const { data: applications = [], isLoading, isError, error, refetch } = useQuery<any[]>({
     queryKey: ['applications'],
     queryFn: async () => {
       const data = await applicationService.list();
@@ -77,6 +77,25 @@ export function ApplicationTracker() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center px-4">
+        <div className="p-6 bg-red-950/20 border border-red-900/30 rounded-2xl max-w-md">
+          <h3 className="text-red-400 font-bold mb-2">Failed to load applications</h3>
+          <p className="text-red-300/80 text-sm mb-4">
+            {error instanceof Error ? error.message : 'An unexpected error occurred.'}
+          </p>
+          <button 
+            onClick={() => refetch()}
+            className="px-4 py-2 bg-red-900/40 hover:bg-red-900/60 border border-red-800/50 text-red-300 rounded-xl text-xs font-bold transition-all"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
