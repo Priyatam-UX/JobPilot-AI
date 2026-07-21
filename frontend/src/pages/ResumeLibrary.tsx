@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resumeService, ResumeResponse } from '../services/resumes';
+import { useWebSocket } from '../context/WebSocketContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Trash2,
@@ -41,6 +42,17 @@ export function ResumeLibrary() {
     queryKey: ['resumes'],
     queryFn: resumeService.list,
   });
+
+  const { lastMessage } = useWebSocket();
+
+  useEffect(() => {
+    if (lastMessage?.type === 'RESUME_ANALYZED' && activeResume && lastMessage.data.resume_id === activeResume.id) {
+      resumeService.get(activeResume.id).then(updated => {
+        setActiveResume(updated);
+        queryClient.invalidateQueries({ queryKey: ['resumes'] });
+      });
+    }
+  }, [lastMessage, activeResume, queryClient]);
 
   const uploadMutation = useMutation({
     mutationFn: ({ title, file }: { title: string; file: File }) => resumeService.upload(title, file),
