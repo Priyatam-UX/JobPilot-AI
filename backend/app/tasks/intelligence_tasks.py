@@ -136,6 +136,12 @@ async def run_auto_apply_pipeline(
                 except Exception as email_err:
                     logger.error(f"Failed to send success email: {email_err}")
             
+            # Send final success event to modal
+            await manager.send_personal_message({
+                "type": "AUTO_APPLY_PROGRESS",
+                "data": {"job_id": job_id, "step": "Successfully applied! Check your email/dashboard.", "status": "success"}
+            }, user_id)
+            
     except Exception as e:
         logger.error(f"Auto-apply pipeline failed: {e}")
         await manager.send_personal_message({
