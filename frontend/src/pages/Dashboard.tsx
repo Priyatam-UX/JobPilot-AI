@@ -112,7 +112,7 @@ export function Dashboard() {
             {isLoading ? 'Loading your data...' : 'Live WebSocket Connection Active'}
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight text-white mb-2">
-            Welcome back to JobPilot AI
+            Welcome back to Priyatam's Jobspilot AI
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed mb-6">
             {summary.jobs.total > 0

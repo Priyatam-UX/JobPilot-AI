@@ -60,7 +60,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="h-16 flex items-center px-6 border-b border-slate-900 gap-2">
           <Sparkles className="w-6 h-6 text-indigo-400 animate-pulse" />
           <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-200 via-slate-100 to-indigo-400 bg-clip-text text-transparent">
-            Job Copilot AI
+            Priyatam's Jobspilot AI
           </span>
           <button 
             onClick={() => setIsSidebarOpen(false)}
