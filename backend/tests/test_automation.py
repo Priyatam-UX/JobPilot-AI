@@ -25,10 +25,10 @@ def test_adapters_instantiation():
     assert lever.login({}) is True
     
     workday = WorkdayAdapter(mock_page)
-    assert workday.login({}) is True
+    assert workday.login({"session": "token"}) is True
     
     linkedin = LinkedInAdapter(mock_page)
-    assert linkedin.login({}) is True
+    assert linkedin.login({"session": "token"}) is True
 
 
 def test_celery_task_signature():
