@@ -108,40 +108,6 @@ export function Layout({ children }: LayoutProps) {
             </div>
           </div>
 
-          {/* Owner/Creator Social Links */}
-          <div className="mt-3 pt-3 border-t border-slate-900/60 text-center">
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Developed by Priyatam</p>
-            <div className="flex justify-center gap-5 text-slate-500">
-              <a 
-                href="https://github.com/Priyatam-UX" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
-                title="GitHub"
-              >
-                <Github className="w-4.5 h-4.5" />
-              </a>
-              <a 
-                href="https://www.linkedin.com/in/priyatam-chinnari/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
-                title="LinkedIn"
-              >
-                <Linkedin className="w-4.5 h-4.5" />
-              </a>
-              <a 
-                href="https://priyatam-ux.github.io/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
-                title="Portfolio"
-              >
-                <Globe className="w-4.5 h-4.5" />
-              </a>
-            </div>
-          </div>
-
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-800 hover:border-red-900/50 hover:bg-red-950/20 text-slate-400 hover:text-red-400 transition-all duration-300 text-sm font-medium"
@@ -149,7 +115,42 @@ export function Layout({ children }: LayoutProps) {
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>
-          <p className="mt-3 text-center text-[11px] text-slate-700 select-none">
+
+          {/* Owner/Creator Social Links */}
+          <div className="mt-4 pt-3.5 border-t border-slate-900/60 text-center">
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Developed by Priyatam</p>
+            <div className="flex justify-center gap-5 text-slate-500">
+              <a 
+                href="https://github.com/Priyatam-UX" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-indigo-400 hover:scale-115 transition-all duration-300"
+                title="GitHub"
+              >
+                <Github className="w-4 h-4" />
+              </a>
+              <a 
+                href="https://www.linkedin.com/in/priyatam-chinnari/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-indigo-400 hover:scale-115 transition-all duration-300"
+                title="LinkedIn"
+              >
+                <Linkedin className="w-4 h-4" />
+              </a>
+              <a 
+                href="https://priyatam-ux.github.io/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-indigo-400 hover:scale-115 transition-all duration-300"
+                title="Portfolio"
+              >
+                <Globe className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+
+          <p className="mt-3 text-center text-[10px] text-slate-700 select-none">
             © 2025 <span className="text-slate-600 font-semibold">Priyatam</span>. All rights reserved.
           </p>
         </div>
