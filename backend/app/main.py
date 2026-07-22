@@ -32,6 +32,24 @@ app.add_middleware(
 # Mount versioned API router
 app.include_router(api_router)
 
+import traceback
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    tbl = traceback.format_exc()
+    origin = request.headers.get("origin", "*")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal Server Error:\n{tbl}"},
+        headers={
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*"
+        }
+    )
+
 # Mount static files directory for generated tailored CVs
 from fastapi.staticfiles import StaticFiles
 import os
