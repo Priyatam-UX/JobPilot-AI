@@ -14,6 +14,8 @@ export function ApplicationTracker() {
   const queryClient = useQueryClient();
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
   const [notes, setNotes] = useState('');
+  const [coverLetterContent, setCoverLetterContent] = useState('');
+  const [isEditingCoverLetter, setIsEditingCoverLetter] = useState(false);
 
   const columns: KanbanColumn[] = [
     { id: 'bookmarked', name: 'Bookmarked', color: 'text-indigo-400 border-indigo-500/20', bg: 'bg-indigo-500/5' },
@@ -40,6 +42,19 @@ export function ApplicationTracker() {
     },
   });
 
+  const updateCoverLetterMutation = useMutation({
+    mutationFn: ({ id, content }: { id: string; content: string }) => 
+      applicationService.updateCoverLetter(id, content),
+    onSuccess: (updatedCoverLetter) => {
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
+      setSelectedApp((prev: any) => ({
+        ...prev,
+        cover_letter: updatedCoverLetter
+      }));
+      setIsEditingCoverLetter(false);
+    },
+  });
+
   // Drag and Drop
   const handleDragStart = (e: React.DragEvent, id: string) => {
     e.dataTransfer.setData('applicationId', id);
@@ -61,6 +76,8 @@ export function ApplicationTracker() {
   const handleCardClick = (app: any) => {
     setSelectedApp(app);
     setNotes(app.notes || '');
+    setCoverLetterContent(app.cover_letter?.content || '');
+    setIsEditingCoverLetter(false);
   };
 
   const handleSaveNotes = () => {
@@ -261,10 +278,65 @@ export function ApplicationTracker() {
 
                     {selectedApp.cover_letter && (
                       <div className="space-y-2 border-t border-slate-900/60 pt-3">
-                        <p className="text-xs font-bold text-white">Tailored Cover Letter</p>
-                        <div className="bg-slate-900/60 border border-slate-900 rounded-xl p-4 max-h-48 overflow-y-auto text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">
-                          {selectedApp.cover_letter.content}
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-bold text-white">Tailored Cover Letter</p>
+                          <div className="flex gap-2.5">
+                            {isEditingCoverLetter ? (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    updateCoverLetterMutation.mutate({
+                                      id: selectedApp.cover_letter.id,
+                                      content: coverLetterContent,
+                                    });
+                                  }}
+                                  disabled={updateCoverLetterMutation.isPending}
+                                  className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase tracking-wider transition-colors"
+                                >
+                                  {updateCoverLetterMutation.isPending ? 'Saving...' : 'Save'}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setCoverLetterContent(selectedApp.cover_letter.content);
+                                    setIsEditingCoverLetter(false);
+                                  }}
+                                  className="text-[10px] text-slate-500 hover:text-slate-400 font-bold uppercase tracking-wider transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => setIsEditingCoverLetter(true)}
+                                  className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold uppercase tracking-wider transition-colors"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(coverLetterContent);
+                                  }}
+                                  className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold uppercase tracking-wider transition-colors"
+                                >
+                                  Copy
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </div>
+                        {isEditingCoverLetter ? (
+                          <textarea
+                            rows={8}
+                            value={coverLetterContent}
+                            onChange={(e) => setCoverLetterContent(e.target.value)}
+                            className="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none text-slate-100 text-xs transition-all duration-300 leading-relaxed font-mono"
+                          />
+                        ) : (
+                          <div className="bg-slate-900/60 border border-slate-900 rounded-xl p-4 max-h-48 overflow-y-auto text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">
+                            {selectedApp.cover_letter.content}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

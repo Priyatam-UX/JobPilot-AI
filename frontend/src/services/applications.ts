@@ -49,4 +49,10 @@ export const applicationService = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  updateCoverLetter: (id: string, content: string) => 
+    apiRequest<any>(`/cover-letters/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ content }),
+    }),
 };
