@@ -23,7 +23,7 @@ services:
       - key: REFRESH_TOKEN_EXPIRE_MINUTES
         value: 43200
       - key: CORS_ORIGINS
-        value: '["https://job-pilot-ai-priyatam-ux.vercel.app", "http://localhost:5173"]'
+        value: '["https://job-pilot-ai-priyatam-ux.vercel.app", "https://jobspilotai.space", "https://www.jobspilotai.space", "http://localhost:5173"]'
       - key: PROJECT_NAME
         value: "AI Job Copilot"
       - key: API_V1_STR
