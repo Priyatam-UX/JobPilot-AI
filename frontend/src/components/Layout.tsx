@@ -136,7 +136,7 @@ export function Layout({ children }: LayoutProps) {
                 title="Vinnie's LinkedIn"
               >
                 <Linkedin className="w-3.5 h-3.5 text-indigo-400/80" />
-                <span>Vinnie</span>
+                <span>Vinnie (Udaya Bhanu)</span>
               </a>
             </div>
           </div>
