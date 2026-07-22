@@ -1,14 +1,14 @@
-# 🚀 JobPilot AI — Enterprise AI Job Copilot
+# 🚀 Jobspilot AI — Enterprise AI Job Copilot
 
 > **Created & Owned by [Priyatam](https://github.com/Priyatam-UX)**
 
-JobPilot AI is a production-ready, enterprise-grade AI-powered job application assistant and automation platform. It automates job search discovery, ATS optimization, resume tailoring, cover letter drafting, interview coaching, and one-click browser-based application automation.
+Jobspilot AI is a production-ready, enterprise-grade AI-powered job application assistant and automation platform. It automates job search discovery, ATS optimization, resume tailoring, cover letter drafting, interview coaching, and one-click browser-based application automation.
 
 ---
 
 ### 🌐 Live Production URLs
 
-- **Live Web Application:** [https://job-pilot-ai-priyatam-ux.vercel.app/](https://job-pilot-ai-priyatam-ux.vercel.app/)
+- **Live Web Application:** [https://jobspilotai.space/](https://jobspilotai.space/)
 - **Live Backend API (Swagger):** [https://jobpilot-backend-l4o2.onrender.com/docs](https://jobpilot-backend-l4o2.onrender.com/docs)
 - **Database & Vector Store:** Neon Serverless PostgreSQL (with `pgvector`)
 - **Queue & Cache Store:** Upstash Serverless Redis (TCP Protocol)
@@ -22,7 +22,7 @@ JobPilot AI is a production-ready, enterprise-grade AI-powered job application a
 
 ## 🏗️ System Architecture
 
-JobPilot AI utilizes a decoupled monorepo architecture separating the responsive React frontend from the high-throughput FastAPI backend. Background worker queues execute scraping and browser automation processes asynchronously.
+Jobspilot AI utilizes a decoupled monorepo architecture separating the responsive React frontend from the high-throughput FastAPI backend. Background worker queues execute scraping and browser automation processes asynchronously.
 
 ```mermaid
 graph TD
@@ -102,7 +102,7 @@ ai-job-copilot/
    - `OPENAI_API_KEY`: Your production OpenAI API key.
    - `JWT_SECRET`: A secure cryptographically random 256-bit string.
    - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: Credentials from Google Developer Console.
-   - `CORS_ORIGINS`: `["https://job-pilot-ai-priyatam-ux.vercel.app"]`
+   - `CORS_ORIGINS`: `["https://job-pilot-ai-priyatam-ux.vercel.app", "https://jobspilotai.space", "https://www.jobspilotai.space"]`
 
 ### Frontend (Vercel)
 1. Import the repository on Vercel.
@@ -167,11 +167,11 @@ ai-job-copilot/
 
 ## 👤 Author & Ownership
 
-**JobPilot AI** is designed, built, and maintained by **[Priyatam](https://github.com/Priyatam-UX)**.
+**Jobspilot AI** is designed, built, and maintained by **[Priyatam](https://github.com/Priyatam-UX)**.
 
 - GitHub: [@Priyatam-UX](https://github.com/Priyatam-UX)
 - Project: [JobPilot-AI](https://github.com/Priyatam-UX/JobPilot-AI)
-- Live App: [job-pilot-ai-priyatam-ux.vercel.app](https://job-pilot-ai-priyatam-ux.vercel.app/)
+- Live App: [jobspilotai.space](https://jobspilotai.space/)
 
 All intellectual property, design decisions, and architecture belong to **Priyatam**.
 
