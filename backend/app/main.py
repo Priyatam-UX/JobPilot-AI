@@ -68,6 +68,10 @@ async def on_startup():
         # Import ALL models so SQLAlchemy knows about them before create_all
         import app.models  # noqa: F401
 
+        # Create any brand-new tables FIRST
+        Base.metadata.create_all(bind=engine)
+        logger.info("[OK] Database schema ready.")
+
         # Add new columns to existing tables safely (idempotent via try/except per column)
         from sqlalchemy import text, inspect
         with engine.connect() as conn:
@@ -108,10 +112,6 @@ async def on_startup():
                     except Exception as e:
                         conn.rollback()
                         logger.warning(f"[WARN] Could not add column resumes.{col_name}: {e}")
-
-        # Create any brand-new tables
-        Base.metadata.create_all(bind=engine)
-        logger.info("[OK] Database schema ready.")
 
     except Exception as e:
         logger.error(f"[ERROR] DB startup error: {e}")
