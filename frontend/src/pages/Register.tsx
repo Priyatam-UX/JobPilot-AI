@@ -50,7 +50,7 @@ export function Register() {
             <div className="w-12 h-12 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/30 mb-3">
               <Sparkles className="w-6 h-6 text-indigo-400" />
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-white text-center">Priyatam's Jobspilot AI</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-white text-center">Jobspilot AI</h2>
             <p className="text-sm text-slate-400 mt-1">Create an account on your personal AI copilot</p>
           </div>
 

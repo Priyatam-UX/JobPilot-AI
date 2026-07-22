@@ -12,9 +12,7 @@ import {
   Sparkles,
   Menu,
   X,
-  Github,
   Linkedin,
-  Globe,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatBot } from './ChatBot';
@@ -63,7 +61,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="h-16 flex items-center px-6 border-b border-slate-900 gap-2">
           <Sparkles className="w-6 h-6 text-indigo-400 animate-pulse" />
           <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-200 via-slate-100 to-indigo-400 bg-clip-text text-transparent">
-            Priyatam's Jobspilot AI
+            Jobspilot AI
           </span>
           <button 
             onClick={() => setIsSidebarOpen(false)}
@@ -118,40 +116,33 @@ export function Layout({ children }: LayoutProps) {
 
           {/* Owner/Creator Social Links */}
           <div className="mt-4 pt-3.5 border-t border-slate-900/60 text-center">
-            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Developed by Priyatam</p>
-            <div className="flex justify-center gap-5 text-slate-500">
-              <a 
-                href="https://github.com/Priyatam-UX" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="hover:text-indigo-400 hover:scale-115 transition-all duration-300"
-                title="GitHub"
-              >
-                <Github className="w-4 h-4" />
-              </a>
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Developed by Priyatam & Vinnie</p>
+            <div className="flex justify-center gap-4 text-slate-400 text-[10px] font-semibold">
               <a 
                 href="https://www.linkedin.com/in/priyatam-chinnari/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="hover:text-indigo-400 hover:scale-115 transition-all duration-300"
-                title="LinkedIn"
+                className="hover:text-indigo-400 flex items-center gap-1 transition-all duration-300"
+                title="Priyatam's LinkedIn"
               >
-                <Linkedin className="w-4 h-4" />
+                <Linkedin className="w-3.5 h-3.5 text-indigo-400/80" />
+                <span>Priyatam</span>
               </a>
               <a 
-                href="https://priyatam-ux.github.io/" 
+                href="https://www.linkedin.com/in/udayajangam/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="hover:text-indigo-400 hover:scale-115 transition-all duration-300"
-                title="Portfolio"
+                className="hover:text-indigo-400 flex items-center gap-1 transition-all duration-300"
+                title="Vinnie's LinkedIn"
               >
-                <Globe className="w-4 h-4" />
+                <Linkedin className="w-3.5 h-3.5 text-indigo-400/80" />
+                <span>Vinnie</span>
               </a>
             </div>
           </div>
 
           <p className="mt-3 text-center text-[10px] text-slate-700 select-none">
-            © 2025 <span className="text-slate-600 font-semibold">Priyatam</span>. All rights reserved.
+            © 2025 <span className="text-slate-600 font-semibold">Jobspilot AI</span>. All rights reserved.
           </p>
         </div>
       </aside>
