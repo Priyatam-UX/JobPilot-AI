@@ -167,7 +167,7 @@ ai-job-copilot/
 
 **Jobspilot AI** is designed, built, and maintained by **[Priyatam](https://github.com/Priyatam-UX)**.
 
-- GitHub: [@Priyatam-UX](https://github.com/Priyatam-UX)
+- GitHub: [@Priyatam-UX](https://github.com/Priyatam-UX) & [@Vinniebhanu2021](https://github.com/vinniebhanu2021)
 - Project: [JobPilot-AI](https://github.com/Priyatam-UX/JobPilot-AI)
 - Live App: [jobspilotai.space](https://jobspilotai.space/)
 
