@@ -12,6 +12,9 @@ import {
   Sparkles,
   Menu,
   X,
+  Github,
+  Linkedin,
+  Globe,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatBot } from './ChatBot';
@@ -95,7 +98,7 @@ export function Layout({ children }: LayoutProps) {
 
         {/* User Profile Summary */}
         <div className="p-4 border-t border-slate-900 bg-slate-950/40">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center font-bold text-white shadow-md">
               {user?.full_name?.charAt(0) || user?.email.charAt(0).toUpperCase() || 'U'}
             </div>
@@ -104,6 +107,38 @@ export function Layout({ children }: LayoutProps) {
               <p className="text-xs text-slate-500 truncate">{user?.email}</p>
             </div>
           </div>
+
+          {/* Owner/Creator Social Links */}
+          <div className="flex justify-center gap-5 py-2 mb-3 border-y border-slate-900/60 text-slate-500">
+            <a 
+              href="https://github.com/Priyatam-UX" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
+              title="GitHub"
+            >
+              <Github className="w-4.5 h-4.5" />
+            </a>
+            <a 
+              href="https://www.linkedin.com/in/priyatam-chinnari/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
+              title="LinkedIn"
+            >
+              <Linkedin className="w-4.5 h-4.5" />
+            </a>
+            <a 
+              href="https://priyatam-ux.github.io/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
+              title="Portfolio"
+            >
+              <Globe className="w-4.5 h-4.5" />
+            </a>
+          </div>
+
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-800 hover:border-red-900/50 hover:bg-red-950/20 text-slate-400 hover:text-red-400 transition-all duration-300 text-sm font-medium"
