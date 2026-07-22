@@ -109,34 +109,37 @@ export function Layout({ children }: LayoutProps) {
           </div>
 
           {/* Owner/Creator Social Links */}
-          <div className="flex justify-center gap-5 py-2 mb-3 border-y border-slate-900/60 text-slate-500">
-            <a 
-              href="https://github.com/Priyatam-UX" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
-              title="GitHub"
-            >
-              <Github className="w-4.5 h-4.5" />
-            </a>
-            <a 
-              href="https://www.linkedin.com/in/priyatam-chinnari/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
-              title="LinkedIn"
-            >
-              <Linkedin className="w-4.5 h-4.5" />
-            </a>
-            <a 
-              href="https://priyatam-ux.github.io/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
-              title="Portfolio"
-            >
-              <Globe className="w-4.5 h-4.5" />
-            </a>
+          <div className="mt-3 pt-3 border-t border-slate-900/60 text-center">
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Developed by Priyatam</p>
+            <div className="flex justify-center gap-5 text-slate-500">
+              <a 
+                href="https://github.com/Priyatam-UX" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
+                title="GitHub"
+              >
+                <Github className="w-4.5 h-4.5" />
+              </a>
+              <a 
+                href="https://www.linkedin.com/in/priyatam-chinnari/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
+                title="LinkedIn"
+              >
+                <Linkedin className="w-4.5 h-4.5" />
+              </a>
+              <a 
+                href="https://priyatam-ux.github.io/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-indigo-400 hover:scale-110 transition-all duration-300"
+                title="Portfolio"
+              >
+                <Globe className="w-4.5 h-4.5" />
+              </a>
+            </div>
           </div>
 
           <button
