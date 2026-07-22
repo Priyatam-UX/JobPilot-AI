@@ -1,7 +1,5 @@
 # 🚀 Jobspilot AI — Enterprise AI Job Copilot
 
-> **Created & Owned by [Priyatam](https://github.com/Priyatam-UX)**
-
 Jobspilot AI is a production-ready, enterprise-grade AI-powered job application assistant and automation platform. It automates job search discovery, ATS optimization, resume tailoring, cover letter drafting, interview coaching, and one-click browser-based application automation.
 
 ---
