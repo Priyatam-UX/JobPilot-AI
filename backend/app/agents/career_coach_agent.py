@@ -33,7 +33,7 @@ class CareerCoachAgent(BaseAgent):
                 ],
                 roadmap=[
                     RoadmapStep(
-                        phase="Milestone 1: Golang Concurrency Patterns",
+                        phase="Roadmap Phase 1: Golang Concurrency Patterns",
                         duration="2 weeks",
                         topics=["goroutines", "select multiplexers", "channel safety"],
                         action_items=["Complete tour of Go concurrency and write a clean workers pool helper."]
