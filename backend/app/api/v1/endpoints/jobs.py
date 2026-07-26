@@ -39,12 +39,19 @@ async def discover_jobs(
     db: Session = Depends(get_db),
 ):
     """
-    Fetch live jobs from external APIs (Remotive), match them against the user's
+    Fetch live jobs from external APIs (Jobicy), match them against the user's
     active resume, calculate scores, and return them sorted by match score.
     """
     if query:
         from app.tasks.job_scraper_tasks import run_job_ingestion
         await run_job_ingestion(db, limit=100, search_query=query)
+    else:
+        # If no search query, ensure database has some jobs.
+        # If DB is empty or sparse, fetch default tech/engineering remote jobs.
+        job_count = db.query(Job).count()
+        if job_count < 15:
+            from app.tasks.job_scraper_tasks import run_job_ingestion
+            await run_job_ingestion(db, limit=50, search_query="")
         
     return discover_and_match_jobs(db, current_user.id, limit=limit, search_query=query or "")
 

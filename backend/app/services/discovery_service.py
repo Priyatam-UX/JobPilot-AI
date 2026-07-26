@@ -175,7 +175,8 @@ def discover_and_match_jobs(
             scored_jobs.append(job_data)
             
     else:
-        # Fallback to random/latest jobs if no resume is embedded yet
+        # Fallback to random/latest jobs if no resume is embedded yet (default setup).
+        # We calculate match score using keyword similarity so matches are realistic.
         fallback_jobs = db.query(Job).limit(limit).all()
         for j in fallback_jobs:
             # Check if user already applied/bookmarked this job
@@ -186,6 +187,14 @@ def discover_and_match_jobs(
             ).first()
             app_status = app.status if app else None
             
+            # Compute keyword score
+            if resume_text:
+                _, matched, missing = score_keyword_match(resume_text, j.description or "")
+                match_score = min(100, len(matched) * 10 + 30) if matched else 10
+            else:
+                matched, missing = [], []
+                match_score = 0
+            
             job_data = {
                 "id": str(j.id),
                 "title": j.title,
@@ -195,11 +204,13 @@ def discover_and_match_jobs(
                 "description": j.description,
                 "url": j.source_url,
                 "source_portal": j.source_portal,
-                "match_score": 0,
-                "matched_keywords": [],
-                "missing_keywords": [],
+                "match_score": match_score,
+                "matched_keywords": matched[:5],
+                "missing_keywords": missing[:5],
                 "application_status": app_status,
             }
             scored_jobs.append(job_data)
 
+    # Sort all discovered jobs by match_score descending
+    scored_jobs.sort(key=lambda x: x["match_score"], reverse=True)
     return scored_jobs

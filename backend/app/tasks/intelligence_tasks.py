@@ -80,28 +80,23 @@ async def run_auto_apply_pipeline(
     db = SessionLocal()
     
     try:
-        # Step 1: Tailor CV
+        # Step 1 & 2: Generate tailored CV and cover letter in parallel to reduce latency
         await manager.send_personal_message({
             "type": "AUTO_APPLY_PROGRESS",
-            "data": {"job_id": job_id, "step": "AI is generating ATS-friendly tailored CV...", "status": "in_progress"}
+            "data": {"job_id": job_id, "step": "AI is generating tailored resume and cover letter...", "status": "in_progress"}
         }, user_id)
         
-        tailored_cv_path = await asyncio.to_thread(
+        tailored_cv_task = asyncio.to_thread(
             generate_tailored_cv_sync,
             user_data, resume_text, job_description
         )
-        
-        # Step 2: Tailor cover letter
-        await manager.send_personal_message({
-            "type": "AUTO_APPLY_PROGRESS",
-            "data": {"job_id": job_id, "step": "AI is writing tailored cover letter...", "status": "in_progress"}
-        }, user_id)
-        
-        cover_letter = await asyncio.to_thread(
+        cover_letter_task = asyncio.to_thread(
             generate_tailored_cover_letter,
             resume_text,
             job_description
         )
+        
+        tailored_cv_path, cover_letter = await asyncio.gather(tailored_cv_task, cover_letter_task)
         
         # Step 3: Execute automation
         await automate_job_application(

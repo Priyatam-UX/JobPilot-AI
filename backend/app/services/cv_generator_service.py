@@ -157,7 +157,7 @@ def generate_tailored_content(resume_text: str, job_description: str, user_data:
     if not settings.GROQ_API_KEY or settings.GROQ_API_KEY == "mock-key":
         return get_offline_fallback_resume(resume_text, user_data)
 
-    llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.5, groq_api_key=settings.GROQ_API_KEY)
+    llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.1, groq_api_key=settings.GROQ_API_KEY)
     
     prompt = PromptTemplate.from_template(
         """You are an elite technical recruiter and resume writer.
