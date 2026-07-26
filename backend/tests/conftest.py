@@ -5,6 +5,9 @@ from fastapi.testclient import TestClient
 
 from app.core.database import Base, get_db
 from app.core.config import settings
+# Force mock keys during tests to prevent external API calls and quota limit errors
+settings.OPENAI_API_KEY = "mock-key"
+settings.GROQ_API_KEY = "mock-key"
 from app.main import app
 
 # Use a test database name for PostgreSQL to avoid overwriting development data
