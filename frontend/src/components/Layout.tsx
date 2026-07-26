@@ -116,27 +116,17 @@ export function Layout({ children }: LayoutProps) {
 
           {/* Owner/Creator Social Links */}
           <div className="mt-4 pt-3.5 border-t border-slate-900/60 text-center">
-            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Developed by Priyatam & Vinnie</p>
-            <div className="flex justify-center gap-4 text-slate-400 text-[10px] font-semibold">
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Developed by Priyatam</p>
+            <div className="flex justify-center text-slate-500">
               <a 
                 href="https://www.linkedin.com/in/priyatam-chinnari/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="hover:text-indigo-400 flex items-center gap-1 transition-all duration-300"
-                title="Priyatam's LinkedIn"
+                className="hover:text-indigo-400 hover:scale-105 transition-all duration-300 flex items-center gap-1.5 text-xs font-semibold"
+                title="LinkedIn"
               >
-                <Linkedin className="w-3.5 h-3.5 text-indigo-400/80" />
-                <span>Priyatam</span>
-              </a>
-              <a 
-                href="https://www.linkedin.com/in/udayajangam/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="hover:text-indigo-400 flex items-center gap-1 transition-all duration-300"
-                title="Vinnie's LinkedIn"
-              >
-                <Linkedin className="w-3.5 h-3.5 text-indigo-400/80" />
-                <span>Vinnie (Udaya Bhanu)</span>
+                <Linkedin className="w-4 h-4 text-indigo-400/80" />
+                <span>LinkedIn</span>
               </a>
             </div>
           </div>
