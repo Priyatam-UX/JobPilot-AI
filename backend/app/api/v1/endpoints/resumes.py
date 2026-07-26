@@ -50,7 +50,6 @@ def upload_resume(
     if resume.raw_text:
         background_tasks.add_task(
             run_resume_analysis_background, 
-            db, 
             str(current_user.id), 
             str(resume.id), 
             resume.raw_text

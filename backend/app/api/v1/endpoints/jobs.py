@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Dict, Any, Optional
 
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query, HTTPException, status, BackgroundTasks
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -30,9 +30,9 @@ class DiscoveredJobResponse(BaseModel):
     missing_keywords: List[str] = []
     application_status: Optional[str] = None
 
-
 @router.get("/discover", response_model=List[DiscoveredJobResponse])
 async def discover_jobs(
+    background_tasks: BackgroundTasks,
     limit: int = Query(100, le=200),
     query: Optional[str] = Query(None, description="Search term for global job search"),
     current_user: User = Depends(get_current_user),
@@ -44,14 +44,14 @@ async def discover_jobs(
     """
     if query:
         from app.tasks.job_scraper_tasks import run_job_ingestion
-        await run_job_ingestion(db, limit=100, search_query=query)
+        background_tasks.add_task(run_job_ingestion, 100, query)
     else:
         # If no search query, ensure database has some jobs.
-        # If DB is empty or sparse, fetch default tech/engineering remote jobs.
+        # If DB is empty or sparse, fetch default tech/engineering remote jobs in background.
         job_count = db.query(Job).count()
         if job_count < 15:
             from app.tasks.job_scraper_tasks import run_job_ingestion
-            await run_job_ingestion(db, limit=50, search_query="")
+            background_tasks.add_task(run_job_ingestion, 50, "")
         
     return discover_and_match_jobs(db, current_user.id, limit=limit, search_query=query or "")
 

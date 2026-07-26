@@ -125,11 +125,9 @@ async def on_startup():
 
     # Kick off background job ingestion
     import asyncio
-    from app.core.database import SessionLocal
     from app.tasks.job_scraper_tasks import run_job_ingestion
 
-    db = SessionLocal()
-    asyncio.create_task(run_job_ingestion(db, limit=20))
+    asyncio.create_task(run_job_ingestion(limit=20))
 
 
 @app.get("/health", tags=["System"])

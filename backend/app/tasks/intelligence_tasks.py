@@ -11,10 +11,11 @@ logger = logging.getLogger(__name__)
 
 from app.services.ats_service import compute_ats_score
 
-async def run_resume_analysis_background(db: Session, user_id: str, resume_id: str, raw_text: str):
+async def run_resume_analysis_background(user_id: str, resume_id: str, raw_text: str):
     """
     Run heavy NLP extraction, ATS scoring, and OpenAI embedding in the background.
     """
+    db = SessionLocal()
     try:
         # Extract skills and structure via OpenAI
         analysis = extract_resume_data_with_ai(raw_text)
@@ -29,7 +30,7 @@ async def run_resume_analysis_background(db: Session, user_id: str, resume_id: s
         embedding_text = f"Skills: {', '.join(skills)}. Summary: {summary}. Text: {raw_text[:1000]}"
         vector = get_embedding(embedding_text)
         
-        resume = db.query(Resume).filter(Resume.id == resume_id).first()
+        resume = db.query(Resume).filter(Resume.id == py_uuid.UUID(resume_id)).first()
         if resume:
             resume.experience_years = exp_years
             resume.all_skills_flat = skills
@@ -54,6 +55,8 @@ async def run_resume_analysis_background(db: Session, user_id: str, resume_id: s
             
     except Exception as e:
         logger.error(f"Error in background resume analysis: {e}")
+    finally:
+        db.close()
 
 from app.services.tailoring_service import generate_tailored_cover_letter
 from app.services.cv_generator_service import generate_tailored_cv_sync

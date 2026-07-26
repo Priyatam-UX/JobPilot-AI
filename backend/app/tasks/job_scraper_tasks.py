@@ -10,13 +10,14 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
-async def run_job_ingestion(db: Session, limit: int = 20, search_query: str = ""):
+async def run_job_ingestion(limit: int = 20, search_query: str = ""):
     """
     Background task to fetch live jobs from Jobicy API, 
     generate OpenAI embeddings for them, and save them to the database.
     """
     logger.info(f"Starting background job ingestion... (query: {search_query})")
-    
+    from app.core.database import SessionLocal
+    db = SessionLocal()
     try:
         # 1. Fetch live jobs
         jobs_data = await fetch_jobs_from_api(limit=limit, search_query=search_query)
@@ -68,6 +69,13 @@ async def run_job_ingestion(db: Session, limit: int = 20, search_query: str = ""
         
         db.commit()
         logger.info(f"Successfully ingested and embedded {len(new_jobs)} jobs.")
+        
+        # Emit WebSocket notification about new jobs
+        from app.core.websockets import manager
+        await manager.broadcast({"type": "JOB_DISCOVERED", "data": {"count": len(new_jobs)}})
+        
     except Exception as e:
         logger.error(f"Error during job ingestion: {e}")
         db.rollback()
+    finally:
+        db.close()
