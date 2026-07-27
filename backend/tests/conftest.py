@@ -13,12 +13,24 @@ from app.main import app
 # Use a test database name for PostgreSQL to avoid overwriting development data
 TEST_DATABASE_URL = settings.DATABASE_URL.replace("job_copilot", "job_copilot_test")
 
-engine = create_engine(TEST_DATABASE_URL)
+connect_args = {}
+if TEST_DATABASE_URL.startswith("postgresql"):
+    connect_args["options"] = "-c search_path=test_schema,public"
+
+engine = create_engine(TEST_DATABASE_URL, connect_args=connect_args)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_db():
+    # Recreate the test schema to ensure absolute isolation
+    if TEST_DATABASE_URL.startswith("postgresql"):
+        temp_engine = create_engine(TEST_DATABASE_URL)
+        with temp_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            from sqlalchemy import text
+            conn.execute(text("CREATE SCHEMA IF NOT EXISTS test_schema;"))
+        temp_engine.dispose()
+
     # Make sure test database is prepared
     # (Since pgvector is used, the pgvector extension must exist on the Postgres host)
     try:
