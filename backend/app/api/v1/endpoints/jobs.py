@@ -42,16 +42,28 @@ async def discover_jobs(
     Fetch live jobs from external APIs (Jobicy), match them against the user's
     active resume, calculate scores, and return them sorted by match score.
     """
+    from app.models.resume import Resume
+    from app.services.discovery_service import get_resume_search_query
+    
+    # Get active resume to extract suitable search query keywords
+    resume = (
+        db.query(Resume)
+        .filter(Resume.user_id == current_user.id)
+        .order_by(Resume.created_at.desc())
+        .first()
+    )
+    
     if query:
         from app.tasks.job_scraper_tasks import run_job_ingestion
         background_tasks.add_task(run_job_ingestion, 100, query)
     else:
         # If no search query, ensure database has some jobs.
-        # If DB is empty or sparse, fetch default tech/engineering remote jobs in background.
+        # If DB is empty or sparse, fetch suitable tech/remote jobs based on resume keywords.
         job_count = db.query(Job).count()
         if job_count < 15:
+            suggested_query = get_resume_search_query(resume) if resume else "software engineer"
             from app.tasks.job_scraper_tasks import run_job_ingestion
-            background_tasks.add_task(run_job_ingestion, 50, "")
+            background_tasks.add_task(run_job_ingestion, 50, suggested_query)
         
     return discover_and_match_jobs(db, current_user.id, limit=limit, search_query=query or "")
 

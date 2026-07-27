@@ -11,6 +11,7 @@ from app.models.job import Job
 from app.models.resume import Resume
 from app.services.ats_service import score_keyword_match
 import httpx
+import asyncio
 from bs4 import BeautifulSoup
 import re
 
@@ -26,8 +27,110 @@ def clean_html(raw_html: str) -> str:
     text_content = soup.get_text(separator=" ")
     return re.sub(r'\s+', ' ', text_content).strip()
 
+def get_resume_search_query(resume: Resume) -> str:
+    """Helper to extract a highly suitable job search query from user skills."""
+    if not resume:
+        return "software engineer"
+    skills = resume.all_skills_flat or []
+    if isinstance(skills, list) and len(skills) > 0:
+        # Take first 2 skills that are descriptive (e.g. React, Python)
+        filtered_skills = [s for s in skills[:2] if s and len(s) < 20]
+        if filtered_skills:
+            return " ".join(filtered_skills)
+    return "software engineer"
+
+async def fetch_linkedin_jobs(limit: int = 20, search_query: str = "") -> List[Dict[str, Any]]:
+    """Fetch live jobs from LinkedIn's public guest search API."""
+    try:
+        import urllib.parse
+        query = search_query or "software engineer"
+        url = f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords={urllib.parse.quote(query)}&location=Remote&start=0"
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9",
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, headers=headers)
+            if response.status_code != 200:
+                logger.warning(f"LinkedIn search returned status code {response.status_code}")
+                return []
+                
+            soup = BeautifulSoup(response.text, "html.parser")
+            job_cards = soup.find_all("li")
+            
+            jobs = []
+            for card in job_cards[:limit]:
+                title_elem = card.find("h3", class_="base-search-card__title")
+                company_elem = card.find("h4", class_="base-search-card__subtitle")
+                location_elem = card.find("span", class_="job-search-card__location")
+                link_elem = card.find("a", class_="base-card__full-link")
+                
+                if not title_elem:
+                    title_elem = card.find("span", class_="screen-reader-text")
+                    
+                if title_elem and link_elem:
+                    title = title_elem.text.strip()
+                    company = company_elem.text.strip() if company_elem else "Unknown Company"
+                    loc = location_elem.text.strip() if location_elem else "Remote"
+                    job_url = link_elem["href"].split("?")[0] if link_elem.has_attr("href") else ""
+                    
+                    # Extract Job ID
+                    job_id_match = re.search(r'/view/(?:.*-)?(\d+)', job_url)
+                    job_id = job_id_match.group(1) if job_id_match else None
+                    
+                    jobs.append({
+                        "title": title,
+                        "company_name": company,
+                        "location": loc,
+                        "salary": "Competitive",
+                        "url": job_url,
+                        "source_portal": "LinkedIn",
+                        "job_id": job_id,
+                        "description": ""
+                    })
+                    
+            if not jobs:
+                return []
+
+            # Fetch descriptions in parallel
+            async def fetch_desc(job_dict):
+                if not job_dict["job_id"]:
+                    job_dict["description"] = f"A premium {job_dict['title']} role at {job_dict['company_name']} located in {job_dict['location']}."
+                    return
+                desc_url = f"https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_dict['job_id']}"
+                try:
+                    res = await client.get(desc_url, headers=headers)
+                    if res.status_code == 200:
+                        desc_soup = BeautifulSoup(res.text, "html.parser")
+                        desc_elem = desc_soup.find("div", class_="description__text")
+                        if not desc_elem:
+                            desc_elem = desc_soup.find("div", class_="show-more-less-html")
+                        if desc_elem:
+                            job_dict["description"] = clean_html(desc_elem.text.strip())
+                            return
+                except Exception as ex:
+                    logger.warning(f"Failed to fetch desc for LinkedIn job {job_dict['job_id']}: {ex}")
+                job_dict["description"] = f"A premium {job_dict['title']} role at {job_dict['company_name']} located in {job_dict['location']}."
+
+            # Limit description scraping to avoid aggressive rate limits
+            await asyncio.gather(*(fetch_desc(j) for j in jobs[:12]))
+            return [j for j in jobs if j["description"]]
+            
+    except Exception as e:
+        logger.error(f"Failed to fetch jobs from LinkedIn: {e}")
+        return []
+
 async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[Dict[str, Any]]:
-    """Fetch live jobs from Jobicy API (used by background ingest task)."""
+    """Fetch live jobs from LinkedIn (primary source) or Jobicy API (fallback)."""
+    logger.info(f"Attempting to fetch jobs from LinkedIn for query: {search_query}")
+    linkedin_jobs = await fetch_linkedin_jobs(limit=limit, search_query=search_query)
+    if linkedin_jobs:
+        logger.info(f"Successfully scraped {len(linkedin_jobs)} jobs from LinkedIn.")
+        return linkedin_jobs
+        
+    logger.warning("LinkedIn fetch returned zero results or was rate limited. Falling back to Jobicy API.")
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             url = f"{JOBICY_URL}?count={limit}"
@@ -46,7 +149,6 @@ async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[D
             for j in jobs:
                 description = clean_html(j.get("jobDescription", ""))
                 
-                # Format salary if available
                 salary_str = "Competitive"
                 if j.get("salaryMin") and j.get("salaryMax"):
                     salary_str = f"{j.get('salaryCurrency', '$')}{j.get('salaryMin')} - {j.get('salaryMax')} {j.get('salaryPeriod', 'yearly')}"
@@ -62,7 +164,7 @@ async def fetch_jobs_from_api(limit: int = 20, search_query: str = "") -> List[D
                 })
             return mapped_jobs
     except Exception as e:
-        logger.error(f"Failed to fetch jobs from Remotive API: {e}")
+        logger.error(f"Failed to fetch jobs from Jobicy API: {e}")
         return []
 
 def discover_and_match_jobs(
