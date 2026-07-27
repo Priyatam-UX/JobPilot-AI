@@ -196,17 +196,31 @@ def discover_and_match_jobs(
         # that were just ingested but don't have embeddings (OpenAI disabled).
         query_obj = db.query(Job)
         words = [w.strip() for w in search_query.split() if w.strip()]
-        for word in words:
-            query_obj = query_obj.filter(
-                (Job.title.ilike(f"%{word}%")) | 
-                (Job.description.ilike(f"%{word}%"))
-            )
+        if words:
+            from sqlalchemy import or_
+            filters = []
+            for word in words:
+                filters.append(Job.title.ilike(f"%{word}%"))
+                filters.append(Job.description.ilike(f"%{word}%"))
+            query_obj = query_obj.filter(or_(*filters))
             
         results = query_obj.limit(limit).all()
         
         for job_obj in results:
             _, matched, missing = score_keyword_match(resume_text, job_obj.description or "")
             match_score = min(100, len(matched) * 10 + 30) if matched else 10
+            
+            # Boost score based on query keywords matching title or description
+            if words:
+                matched_query_words = 0
+                for word in words:
+                    title_match = word.lower() in (job_obj.title or "").lower()
+                    desc_match = word.lower() in (job_obj.description or "").lower()
+                    if title_match or desc_match:
+                        matched_query_words += 1
+                
+                query_boost = int((matched_query_words / len(words)) * 40)
+                match_score = min(100, match_score + query_boost)
             
             # Check if user already applied/bookmarked this job
             from app.models.application import Application
