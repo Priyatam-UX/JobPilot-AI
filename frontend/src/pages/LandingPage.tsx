@@ -103,18 +103,6 @@ export function LandingPage() {
               </motion.button>
             </motion.div>
 
-            {/* Social Proof */}
-            <motion.div variants={fadeInUp} className="mt-20 pt-8 border-t border-white/10 flex flex-col items-center gap-4">
-              <p className="text-sm font-medium text-slate-500 uppercase tracking-widest">Trusted by candidates landing offers at</p>
-              <div className="flex gap-8 opacity-50 grayscale mix-blend-screen">
-                {/* Abstract geometric placeholders for logos */}
-                <div className="text-xl font-bold font-serif italic tracking-tighter">Acme Corp</div>
-                <div className="text-xl font-bold tracking-widest">GLOBAL</div>
-                <div className="text-xl font-bold font-mono">/TECH</div>
-                <div className="text-xl font-bold opacity-80">NEXUS</div>
-              </div>
-            </motion.div>
-
           </motion.div>
         </section>
 
