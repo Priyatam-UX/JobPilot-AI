@@ -6,3 +6,4 @@ export * from './JobDiscovery';
 export * from './ApplicationTracker';
 export * from './InterviewPrep';
 export * from './CareerCoach';
+export * from './LandingPage';

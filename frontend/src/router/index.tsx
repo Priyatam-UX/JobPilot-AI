@@ -10,6 +10,7 @@ import { JobDiscovery } from '../pages/JobDiscovery';
 import { ApplicationTracker } from '../pages/ApplicationTracker';
 import { InterviewPrep } from '../pages/InterviewPrep';
 import { CareerCoach } from '../pages/CareerCoach';
+import { LandingPage } from '../pages/LandingPage';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -21,6 +22,8 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
 }
 
 export function AppRouter() {
+  const { isAuthenticated } = useAuthStore();
+
   return (
     <Routes>
       {/* Public auth routes */}
@@ -31,9 +34,13 @@ export function AppRouter() {
       <Route
         path="/"
         element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
+          isAuthenticated ? (
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          ) : (
+            <LandingPage />
+          )
         }
       />
       <Route
