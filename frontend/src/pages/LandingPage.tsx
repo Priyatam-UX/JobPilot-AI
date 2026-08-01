@@ -84,15 +84,10 @@ const headerVariants = {
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen w-full bg-[#030303] text-slate-200 font-sans flex selection:bg-white/20 relative overflow-hidden">
+    <div className="min-h-screen w-full bg-[#09090b] text-slate-200 font-sans flex selection:bg-white/10 relative overflow-hidden">
       
-      {/* High-Class Subtle Animated Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-        <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-indigo-500/10 rounded-full blur-[120px] mix-blend-screen animate-pulse duration-[8000ms]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-slate-500/10 rounded-full blur-[120px] mix-blend-screen" />
-        {/* Noise overlay for premium texture */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay" />
-      </div>
+      {/* Pure Professional Background - No glows, no noise, just standard enterprise dark mode */}
+      <div className="fixed inset-0 z-0 pointer-events-none bg-[#09090b]" />
 
       {/* --- SIDEBAR --- */}
       <motion.aside 
