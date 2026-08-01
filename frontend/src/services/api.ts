@@ -4,20 +4,20 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'https://jobpilot-backend-l4o2.
  * Core API request function with automatic retry logic.
  * Retries up to 3 times with exponential backoff to handle Render free-tier cold starts.
  */
-async function fetchWithRetry(url: string, options: RequestInit, retries = 6): Promise<Response> {
+async function fetchWithRetry(url: string, options: RequestInit, retries = 3): Promise<Response> {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const response = await fetch(url, options);
-      if (!response.ok && [502, 503, 504].includes(response.status)) {
-        throw new Error(`Server waking up: ${response.status}`);
-      }
       return response;
-    } catch (err: any) {
+    } catch (err) {
       if (attempt === retries) {
-        throw new Error(`Network Error (${err.message}). URL: ${url}. The AI backend might be offline or still waking up.`);
+        if (err instanceof TypeError) {
+          throw new Error(`Network Error (${err.message}). URL: ${url}. Is backend running?`);
+        }
+        throw err;
       }
-      // Wait: 2s, 4s, 8s, 16s, 32s (total up to ~62s)
-      await new Promise((res) => setTimeout(res, 1000 * Math.pow(2, attempt)));
+      // Wait: 1s, 2s, 4s — exponential backoff
+      await new Promise((res) => setTimeout(res, 1000 * Math.pow(2, attempt - 1)));
     }
   }
   // TypeScript requires this but it's unreachable
