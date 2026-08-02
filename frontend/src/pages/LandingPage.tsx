@@ -4,7 +4,6 @@ import {
   ArrowRight, 
   FileText,
   Briefcase,
-  Target,
   MessageSquare,
   Sparkles,
   BarChart2
