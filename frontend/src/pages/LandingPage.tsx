@@ -15,7 +15,7 @@ import { useRef } from 'react';
 // Animation Variants
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const } }
 };
 
 const staggerContainer = {
@@ -25,7 +25,7 @@ const staggerContainer = {
 
 const abstractCardVariants = {
   hidden: { opacity: 0, scale: 0.95, y: 20 },
-  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } }
+  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as const } }
 };
 
 export function LandingPage() {
