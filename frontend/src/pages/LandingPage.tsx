@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { 
   Command, 
   ArrowRight, 
-  Sparkles,
   FileText,
   Briefcase,
   Target,
@@ -11,114 +10,134 @@ import {
 import { motion } from 'framer-motion';
 
 const fadeInUp = {
-  initial: { opacity: 0, y: 24 },
+  initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true },
-  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+  viewport: { once: true, margin: "-50px" },
+  transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
 };
 
 const staggerContainer = {
   initial: { opacity: 0 },
   whileInView: { opacity: 1 },
   viewport: { once: true },
-  transition: { staggerChildren: 0.1 }
+  transition: { staggerChildren: 0.15 }
 };
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen w-full bg-[#000000] text-slate-300 font-sans flex flex-col relative overflow-hidden selection:bg-white/20">
+    <div className="min-h-screen w-full bg-[#fdfdfc] text-slate-900 font-sans flex flex-col relative overflow-hidden selection:bg-blue-500/20">
       
-      {/* Refined Ambient Glow */}
-      <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[60%] h-[40%] bg-white/5 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay pointer-events-none" />
+      {/* Exquisite Light Theme Ambient Gradients */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#fce7f3]/60 rounded-full blur-[120px] pointer-events-none mix-blend-multiply" />
+      <div className="absolute top-[20%] right-[-10%] w-[40%] h-[60%] bg-[#e0f2fe]/60 rounded-full blur-[120px] pointer-events-none mix-blend-multiply" />
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.015] mix-blend-overlay pointer-events-none" />
 
       {/* --- TOP NAVBAR --- */}
       <motion.nav 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="h-[80px] w-full border-b border-white/5 bg-[#000000]/50 backdrop-blur-xl flex items-center justify-between px-8 md:px-16 z-50 fixed top-0"
+        className="h-[80px] w-full border-b border-slate-200/60 bg-[#fdfdfc]/80 backdrop-blur-xl flex items-center justify-between px-8 md:px-16 z-50 fixed top-0"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded bg-white text-black flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center shadow-md">
             <Command className="w-4 h-4" />
           </div>
-          <span className="font-semibold text-[15px] tracking-tight text-white">JobPilot AI</span>
+          <span className="font-bold text-[16px] tracking-tight text-slate-900">JobPilot AI</span>
         </div>
 
         <div className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Features</a>
-          <a href="#testimonials" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Testimonials</a>
-          <a href="#pricing" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Pricing</a>
+          <a href="#features" className="text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors">Platform</a>
+          <a href="#testimonials" className="text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors">Customers</a>
+          <a href="#pricing" className="text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors">Pricing</a>
         </div>
 
         <div className="flex items-center gap-4">
           <Link 
             to="/login" 
-            className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors px-4 py-2"
+            className="text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors px-4 py-2"
           >
-            Sign In
+            Sign in
           </Link>
           <Link 
             to="/register" 
-            className="group flex items-center gap-2 text-[13px] font-medium text-black px-5 py-2.5 rounded bg-white hover:bg-slate-200 transition-colors"
+            className="group flex items-center gap-2 text-[14px] font-medium text-white px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 transition-all shadow-[0_4px_14px_0_rgba(0,0,0,0.1)]"
           >
-            Get Started
+            Get started
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
       </motion.nav>
 
       {/* --- HERO SECTION --- */}
-      <main className="flex-1 flex flex-col items-center justify-center pt-40 pb-24 px-6 relative z-10 text-center">
+      <main className="flex-1 flex flex-col items-center pt-40 pb-24 px-6 relative z-10 w-full max-w-7xl mx-auto">
         <motion.div 
           variants={staggerContainer}
           initial="initial"
           animate="whileInView"
-          className="max-w-4xl mx-auto flex flex-col items-center"
+          className="flex flex-col lg:flex-row items-center gap-16 w-full"
         >
-          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-[12px] font-medium text-[#888888] mb-8 backdrop-blur-sm hover:bg-white/[0.05] transition-colors cursor-pointer">
-            <Sparkles className="w-3.5 h-3.5 text-slate-400" />
-            <span>JobPilot AI 2.0 is now live</span>
-          </motion.div>
-          
-          <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-[#666666] mb-6 leading-[1.1]">
-            The definitive platform <br className="hidden md:block" /> for your career growth.
-          </motion.h1>
-          
-          <motion.p variants={fadeInUp} className="text-lg md:text-xl text-[#888888] mb-12 max-w-2xl leading-relaxed font-light">
-            Stop guessing and start landing offers. JobPilot AI optimizes your resume, discovers hidden roles, and preps you for interviews with pinpoint accuracy.
-          </motion.p>
-          
-          <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4">
-            <Link 
-              to="/register" 
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded bg-white text-black font-medium text-[14px] hover:bg-slate-200 transition-colors"
-            >
-              Start For Free <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link 
-              to="/login" 
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded bg-transparent border border-white/10 text-white font-medium text-[14px] hover:bg-white/[0.03] transition-colors"
-            >
-              Sign In to Account
-            </Link>
+          {/* Hero Content */}
+          <div className="flex-1 flex flex-col items-start text-left">
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200/60 text-[13px] font-medium text-blue-700 mb-8 shadow-sm">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              Introducing JobPilot AI 2.0
+            </motion.div>
+            
+            <motion.h1 variants={fadeInUp} className="text-5xl md:text-[80px] font-bold tracking-tight text-slate-900 mb-6 leading-[1.05]">
+              Hire smarter, <br className="hidden md:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">scale faster.</span>
+            </motion.h1>
+            
+            <motion.p variants={fadeInUp} className="text-lg md:text-xl text-slate-600 mb-10 max-w-xl leading-relaxed">
+              JobPilot AI automates the heavy lifting of recruitment. Screen, interview, and hire top-tier talent with unprecedented precision using our next-generation AI platform.
+            </motion.p>
+            
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4">
+              <Link 
+                to="/register" 
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 text-white font-semibold text-[15px] hover:bg-blue-700 transition-colors shadow-[0_8px_24px_rgba(37,99,235,0.25)] hover:shadow-[0_12px_28px_rgba(37,99,235,0.35)] hover:-translate-y-0.5 duration-200"
+              >
+                Start free trial <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link 
+                to="/login" 
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold text-[15px] hover:bg-slate-50 transition-colors shadow-sm"
+              >
+                Contact sales
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* Hero Image / Illustration */}
+          <motion.div variants={fadeInUp} className="flex-1 w-full relative">
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-fuchsia-500/10 rounded-[40px] blur-3xl transform -rotate-6 scale-105" />
+            <div className="relative bg-white p-2 rounded-[32px] border border-slate-200/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden">
+              <img 
+                src="/hero-illustration.jpg" 
+                alt="JobPilot AI Dashboard Abstract Representation" 
+                className="w-full h-auto rounded-[24px] object-cover aspect-video"
+              />
+            </div>
           </motion.div>
         </motion.div>
       </main>
 
-      {/* --- FEATURES GRID --- */}
-      <section id="features" className="py-32 bg-[#000000] border-t border-white/5 relative z-10">
+      {/* --- BENTO BOX FEATURES --- */}
+      <section id="features" className="py-32 bg-white relative z-10 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-8">
           <motion.div 
             variants={fadeInUp}
             initial="initial"
             whileInView="whileInView"
             viewport={{ once: true, margin: "-100px" }}
-            className="text-center mb-20"
+            className="text-center mb-24 max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">Everything you need.</h2>
-            <p className="text-[#888888] max-w-xl mx-auto font-light text-lg">Powerful tools designed to automate the heavy lifting of your job search.</p>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6">A complete intelligence suite.</h2>
+            <p className="text-slate-600 text-xl leading-relaxed">Everything you need to source, track, and close the best candidates in the market, beautifully integrated into one platform.</p>
           </motion.div>
           
           <motion.div 
@@ -126,39 +145,49 @@ export function LandingPage() {
             initial="initial"
             whileInView="whileInView"
             viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
             
-            <motion.div variants={fadeInUp} className="p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 group-hover:bg-white/10 transition-colors">
-                <FileText className="w-5 h-5 text-white" />
+            {/* Bento Item 1 - Large */}
+            <motion.div variants={fadeInUp} className="md:col-span-2 p-10 rounded-[32px] bg-slate-50 border border-slate-200 hover:border-blue-200 transition-colors group relative overflow-hidden flex flex-col justify-end min-h-[360px]">
+              <div className="absolute top-0 right-0 w-[60%] h-full bg-gradient-to-l from-blue-100/50 to-transparent pointer-events-none" />
+              <div className="relative z-10 w-full md:w-3/5">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                  <FileText className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">AI Resume Screening</h3>
+                <p className="text-lg text-slate-600 leading-relaxed">Automatically extract skills, score experience, and rank hundreds of resumes in seconds with human-level accuracy.</p>
               </div>
-              <h3 className="text-[15px] font-medium text-white mb-2 tracking-tight">Smart Resume Library</h3>
-              <p className="text-[14px] text-[#888888] leading-relaxed font-light">Instantly tailor your resumes to match specific job descriptions using our advanced AI analysis.</p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 group-hover:bg-white/10 transition-colors">
-                <Briefcase className="w-5 h-5 text-white" />
+            {/* Bento Item 2 - Small */}
+            <motion.div variants={fadeInUp} className="md:col-span-1 p-10 rounded-[32px] bg-slate-50 border border-slate-200 hover:border-blue-200 transition-colors group flex flex-col">
+              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                <Briefcase className="w-6 h-6 text-blue-600" />
               </div>
-              <h3 className="text-[15px] font-medium text-white mb-2 tracking-tight">Job Discovery</h3>
-              <p className="text-[14px] text-[#888888] leading-relaxed font-light">Our AI scans thousands of job boards daily to find roles perfectly suited to your unique skillset.</p>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">Role Discovery</h3>
+              <p className="text-lg text-slate-600 leading-relaxed">Identify niche talent pools and match candidates to internal roles automatically.</p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 group-hover:bg-white/10 transition-colors">
-                <Target className="w-5 h-5 text-white" />
+            {/* Bento Item 3 - Small */}
+            <motion.div variants={fadeInUp} className="md:col-span-1 p-10 rounded-[32px] bg-slate-50 border border-slate-200 hover:border-blue-200 transition-colors group flex flex-col">
+              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                <Target className="w-6 h-6 text-blue-600" />
               </div>
-              <h3 className="text-[15px] font-medium text-white mb-2 tracking-tight">Application Tracker</h3>
-              <p className="text-[14px] text-[#888888] leading-relaxed font-light">Keep a detailed log of every application, interview stage, and offer in one beautiful dashboard.</p>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">Pipeline Tracker</h3>
+              <p className="text-lg text-slate-600 leading-relaxed">A pristine, visual overview of your entire hiring funnel from source to offer.</p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 group-hover:bg-white/10 transition-colors">
-                <MessageSquare className="w-5 h-5 text-white" />
+            {/* Bento Item 4 - Large */}
+            <motion.div variants={fadeInUp} className="md:col-span-2 p-10 rounded-[32px] bg-slate-900 text-white border border-slate-800 hover:border-slate-700 transition-colors group relative overflow-hidden flex flex-col justify-end min-h-[360px]">
+              <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[80%] bg-blue-500/20 rounded-full blur-[80px] pointer-events-none" />
+              <div className="relative z-10 w-full md:w-3/5">
+                <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center mb-6 backdrop-blur-md group-hover:scale-105 transition-transform duration-300">
+                  <MessageSquare className="w-6 h-6 text-blue-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3 tracking-tight">Conversational AI Co-Pilot</h3>
+                <p className="text-lg text-slate-300 leading-relaxed">Conduct initial screening interviews automatically with our specialized conversational AI, capable of deep technical qualification.</p>
               </div>
-              <h3 className="text-[15px] font-medium text-white mb-2 tracking-tight">AI Career Coach</h3>
-              <p className="text-[14px] text-[#888888] leading-relaxed font-light">Practice your interview skills with real-time feedback from our specialized conversational AI coach.</p>
             </motion.div>
 
           </motion.div>
@@ -166,8 +195,8 @@ export function LandingPage() {
       </section>
 
       {/* --- FOOTER --- */}
-      <footer className="py-12 border-t border-white/5 bg-[#000000] text-center relative z-10">
-        <p className="text-[13px] text-[#666666]">© 2026 JobPilot AI Inc. All rights reserved.</p>
+      <footer className="py-16 border-t border-slate-200 bg-[#fdfdfc] text-center relative z-10">
+        <p className="text-[14px] text-slate-500 font-medium">© 2026 JobPilot AI Inc. Built with unprecedented precision.</p>
       </footer>
     </div>
   );
