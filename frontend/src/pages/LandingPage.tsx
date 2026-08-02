@@ -247,6 +247,148 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* --- TESTIMONIALS SECTION --- */}
+      <section id="testimonials" className="py-32 bg-[#030303] relative z-10 border-t border-white/5">
+        <div className="max-w-[1400px] mx-auto px-6">
+          <motion.div 
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="text-left mb-20 max-w-3xl"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6">Trusted by developers at leading companies.</h2>
+            <p className="text-[#888888] text-xl leading-relaxed font-light">See how JobPilot AI helps engineers navigate their careers and land dream offers.</p>
+          </motion.div>
+
+          <motion.div 
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          >
+            <motion.div variants={fadeUp} className="p-8 rounded-[24px] bg-[#0a0a0a] border border-white/5 flex flex-col justify-between">
+              <p className="text-slate-300 text-base leading-relaxed font-light mb-8">
+                "JobPilot AI completely transformed my job search. The resume optimization was so precise that I started getting callbacks from Tier-1 tech companies within 3 days."
+              </p>
+              <div>
+                <h4 className="text-sm font-bold text-white">Sarah Jenkins</h4>
+                <p className="text-xs text-slate-500 mt-1">Software Engineer, Vercel</p>
+              </div>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="p-8 rounded-[24px] bg-[#0a0a0a] border border-white/5 flex flex-col justify-between">
+              <p className="text-slate-300 text-base leading-relaxed font-light mb-8">
+                "The mock interviews with the Conversational AI Coach felt incredibly realistic. It helped me structure my STAR answers and walk into the loop with total confidence."
+              </p>
+              <div>
+                <h4 className="text-sm font-bold text-white">David Chen</h4>
+                <p className="text-xs text-slate-500 mt-1">Senior Frontend Lead, Stripe</p>
+              </div>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="p-8 rounded-[24px] bg-[#0a0a0a] border border-white/5 flex flex-col justify-between">
+              <p className="text-slate-300 text-base leading-relaxed font-light mb-8">
+                "I tracked over 50 applications using the pipeline tracker. The AI auto-discovery found hidden listings that fit my background that I hadn't seen anywhere else."
+              </p>
+              <div>
+                <h4 className="text-sm font-bold text-white">Marcus Vance</h4>
+                <p className="text-xs text-slate-500 mt-1">Product Engineer, Supabase</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* --- PRICING SECTION --- */}
+      <section id="pricing" className="py-32 bg-[#030303] relative z-10 border-t border-white/5">
+        <div className="max-w-[1400px] mx-auto px-6">
+          <motion.div 
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="text-left mb-20 max-w-3xl"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6">Simple, transparent pricing.</h2>
+            <p className="text-[#888888] text-xl leading-relaxed font-light">Start boosting your applications for free, and unlock powerful AI features when you're ready to accelerate.</p>
+          </motion.div>
+
+          <motion.div 
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch"
+          >
+            {/* Free Plan */}
+            <motion.div variants={fadeUp} className="p-10 rounded-[32px] bg-[#0a0a0a] border border-white/5 flex flex-col justify-between h-full">
+              <div>
+                <h3 className="text-lg font-bold text-white mb-2">Developer</h3>
+                <p className="text-sm text-slate-500 font-light mb-6">For developers starting their search.</p>
+                <div className="flex items-baseline gap-1 mb-8">
+                  <span className="text-5xl font-bold text-white">$0</span>
+                  <span className="text-sm text-slate-500">/mo</span>
+                </div>
+                <ul className="space-y-4 text-sm text-slate-400 font-light mb-8">
+                  <li className="flex items-center gap-2">✓ Track up to 20 applications</li>
+                  <li className="flex items-center gap-2">✓ Basic resume formatting</li>
+                  <li className="flex items-center gap-2">✓ Job board discovery</li>
+                </ul>
+              </div>
+              <Link to="/register" className="w-full text-center py-3 bg-[#111111] hover:bg-[#1a1a1a] border border-white/10 text-white rounded font-medium text-sm transition-colors block">
+                Start Free
+              </Link>
+            </motion.div>
+
+            {/* Pro Plan */}
+            <motion.div variants={fadeUp} className="p-10 rounded-[32px] bg-[#0c0c0c] border border-white/20 flex flex-col justify-between h-full relative shadow-[0_0_50px_rgba(255,255,255,0.02)]">
+              <div className="absolute -top-4 left-10 px-3 py-1 bg-white text-black text-[10px] uppercase font-bold tracking-widest rounded">
+                Most Popular
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white mb-2">Professional</h3>
+                <p className="text-sm text-slate-500 font-light mb-6">Complete suite for active job seekers.</p>
+                <div className="flex items-baseline gap-1 mb-8">
+                  <span className="text-5xl font-bold text-white">$19</span>
+                  <span className="text-sm text-slate-500">/mo</span>
+                </div>
+                <ul className="space-y-4 text-sm text-slate-300 font-light mb-8">
+                  <li className="flex items-center gap-2">✓ Unlimited application tracking</li>
+                  <li className="flex items-center gap-2">✓ AI ATS optimization & scoring</li>
+                  <li className="flex items-center gap-2">✓ Unlimited AI Career Coach credits</li>
+                  <li className="flex items-center gap-2">✓ Direct referral opportunities</li>
+                </ul>
+              </div>
+              <Link to="/register" className="w-full text-center py-3 bg-white hover:bg-slate-200 text-black rounded font-medium text-sm transition-colors block">
+                Upgrade to Pro
+              </Link>
+            </motion.div>
+
+            {/* Enterprise Plan */}
+            <motion.div variants={fadeUp} className="p-10 rounded-[32px] bg-[#0a0a0a] border border-white/5 flex flex-col justify-between h-full">
+              <div>
+                <h3 className="text-lg font-bold text-white mb-2">Enterprise</h3>
+                <p className="text-sm text-slate-500 font-light mb-6">For hiring teams and boutique agencies.</p>
+                <div className="flex items-baseline gap-1 mb-8">
+                  <span className="text-5xl font-bold text-white">Custom</span>
+                </div>
+                <ul className="space-y-4 text-sm text-slate-400 font-light mb-8">
+                  <li className="flex items-center gap-2">✓ Multi-seat team dashboard</li>
+                  <li className="flex items-center gap-2">✓ Dedicated account manager</li>
+                  <li className="flex items-center gap-2">✓ Tailored AI scoring models</li>
+                  <li className="flex items-center gap-2">✓ API custom integrations</li>
+                </ul>
+              </div>
+              <Link to="/login" className="w-full text-center py-3 bg-[#111111] hover:bg-[#1a1a1a] border border-white/10 text-white rounded font-medium text-sm transition-colors block">
+                Contact Sales
+              </Link>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* --- FOOTER --- */}
       <footer className="py-16 border-t border-white/5 bg-[#030303] text-left px-6 relative z-10">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between">
