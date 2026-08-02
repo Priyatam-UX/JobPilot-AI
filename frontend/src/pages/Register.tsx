@@ -36,19 +36,19 @@ export function Register() {
   };
 
   return (
-    <div className="min-h-screen w-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 p-4 font-sans relative overflow-hidden">
+    <div className="min-h-screen w-screen flex items-center justify-center bg-[#030303] text-slate-100 p-4 font-sans relative overflow-hidden">
       
       {/* Interactive Particle Background */}
       <ParticleBackground particleCount={80} speed={0.4} />
 
       <div className="w-full max-w-md relative z-10 pointer-events-none">
-        <div className="absolute -top-16 -left-16 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-violet-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute -top-16 -left-16 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
 
-        <TiltCard className="glass rounded-3xl p-8 shadow-2xl relative overflow-visible pointer-events-auto">
+        <TiltCard className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-8 shadow-2xl relative overflow-visible pointer-events-auto">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-12 h-12 bg-indigo-600/20 rounded-2xl flex items-center justify-center border border-indigo-500/30 mb-3">
-              <Sparkles className="w-6 h-6 text-indigo-400" />
+            <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 mb-3">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-white text-center">Jobspilot AI</h2>
             <p className="text-sm text-slate-400 mt-1">Create an account on your personal AI copilot</p>
@@ -71,7 +71,7 @@ export function Register() {
                   placeholder="John Doe"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none text-slate-100 text-sm transition-all duration-300"
+                  className="w-full pl-11 pr-4 py-3 bg-[#0a0a0a] border border-white/5 rounded-xl focus:border-white/20 focus:ring-1 focus:ring-white/10 outline-none text-slate-100 text-sm transition-all duration-300"
                 />
               </div>
             </div>
@@ -86,7 +86,7 @@ export function Register() {
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none text-slate-100 text-sm transition-all duration-300"
+                  className="w-full pl-11 pr-4 py-3 bg-[#0a0a0a] border border-white/5 rounded-xl focus:border-white/20 focus:ring-1 focus:ring-white/10 outline-none text-slate-100 text-sm transition-all duration-300"
                 />
               </div>
             </div>
@@ -101,7 +101,7 @@ export function Register() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none text-slate-100 text-sm transition-all duration-300"
+                  className="w-full pl-11 pr-4 py-3 bg-[#0a0a0a] border border-white/5 rounded-xl focus:border-white/20 focus:ring-1 focus:ring-white/10 outline-none text-slate-100 text-sm transition-all duration-300"
                 />
               </div>
             </div>
@@ -109,7 +109,7 @@ export function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl font-medium text-sm transition-all duration-300 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 hover:scale-[1.01]"
+              className="w-full py-3 bg-white text-black hover:bg-slate-200 rounded-xl font-medium text-sm transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] flex items-center justify-center gap-2 hover:scale-[1.01]"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Get Started'}
             </button>
@@ -117,7 +117,7 @@ export function Register() {
 
           <p className="text-center text-xs text-slate-500 mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-medium">
+            <Link to="/login" className="text-white hover:text-slate-300 font-medium">
               Sign in
             </Link>
           </p>
