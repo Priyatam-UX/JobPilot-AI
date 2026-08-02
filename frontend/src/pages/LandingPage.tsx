@@ -55,7 +55,7 @@ export function LandingPage() {
           <div className="w-8 h-8 rounded flex items-center justify-center bg-white text-black">
             <Command className="w-4 h-4" />
           </div>
-          <span className="font-semibold text-[15px] tracking-tight text-white">JobPilot AI</span>
+          <span className="font-semibold text-[15px] tracking-tight text-white">Priyatam's JobPilot AI</span>
         </div>
 
         <div className="hidden md:flex items-center gap-8">
@@ -249,8 +249,9 @@ export function LandingPage() {
 
       {/* --- FOOTER --- */}
       <footer className="py-16 border-t border-white/5 bg-[#030303] text-left px-6 relative z-10">
-        <div className="max-w-[1400px] mx-auto">
-          <p className="text-[13px] text-[#555555] font-medium tracking-wide">© 2026 JOBPILOT AI. ENGINEERED WITH PRECISION.</p>
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
+          <p className="text-[13px] text-[#555555] font-medium tracking-wide">© 2026 PRIYATAM'S JOBPILOT AI. ENGINEERED WITH PRECISION.</p>
+          <p className="text-[13px] text-[#555555] font-medium tracking-wide">Created by Priyatam</p>
         </div>
       </footer>
     </div>
