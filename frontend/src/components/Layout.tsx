@@ -43,7 +43,7 @@ export function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 font-sans relative">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#030303] text-slate-100 font-sans relative">
       
       {/* Subtle App-wide Particle Background */}
       <ParticleBackground particleCount={40} opacity={0.5} speed={0.2} connectionDistance={100} mouseRepelRadius={200} />
@@ -56,12 +56,12 @@ export function Layout({ children }: LayoutProps) {
       )}
 
       {/* Sidebar with Glassmorphism */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-800 bg-slate-950/95 backdrop-blur-xl flex flex-col h-full transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-white/5 bg-[#0a0a0a]/95 backdrop-blur-xl flex flex-col h-full transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Brand */}
-        <div className="h-16 flex items-center px-6 border-b border-slate-900 gap-2">
-          <Sparkles className="w-6 h-6 text-indigo-400 animate-pulse" />
-          <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-200 via-slate-100 to-indigo-400 bg-clip-text text-transparent">
-            Jobspilot AI
+        <div className="h-16 flex items-center px-6 border-b border-white/5 gap-2">
+          <Sparkles className="w-5 h-5 text-white animate-pulse" />
+          <span className="font-bold text-base tracking-tight text-white">
+            Priyatam's JobPilot AI
           </span>
           <button 
             onClick={() => setIsSidebarOpen(false)}
@@ -83,11 +83,11 @@ export function Layout({ children }: LayoutProps) {
                 onClick={() => setIsSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group ${
                   isActive
-                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/20'
-                    : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                    ? 'bg-white text-black font-semibold shadow-sm'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                 }`}
               >
-                <Icon className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-indigo-400'}`} />
+                <Icon className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-black' : 'text-slate-400 group-hover:text-white'}`} />
                 {item.name}
               </Link>
             );
@@ -95,9 +95,9 @@ export function Layout({ children }: LayoutProps) {
         </nav>
 
         {/* User Profile Summary */}
-        <div className="p-4 border-t border-slate-900 bg-slate-950/40">
+        <div className="p-4 border-t border-white/5 bg-[#0a0a0a]/40">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center font-bold text-white shadow-md">
+            <div className="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center font-bold text-white shadow-md">
               {user?.full_name?.charAt(0) || user?.email.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="min-w-0 flex-1">
@@ -105,34 +105,34 @@ export function Layout({ children }: LayoutProps) {
               <p className="text-xs text-slate-500 truncate">{user?.email}</p>
             </div>
           </div>
-
+ 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-800 hover:border-red-900/50 hover:bg-red-950/20 text-slate-400 hover:text-red-400 transition-all duration-300 text-sm font-medium"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-white/5 hover:border-red-900/50 hover:bg-red-950/20 text-slate-400 hover:text-red-400 transition-all duration-300 text-sm font-medium"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>
 
           {/* Owner/Creator Social Links */}
-          <div className="mt-4 pt-3.5 border-t border-slate-900/60 text-center">
+          <div className="mt-4 pt-3.5 border-t border-white/5 text-center">
             <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Developed by Priyatam</p>
             <div className="flex justify-center text-slate-500">
               <a 
                 href="https://www.linkedin.com/in/priyatam-chinnari/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="hover:text-indigo-400 hover:scale-105 transition-all duration-300 flex items-center gap-1.5 text-xs font-semibold"
+                className="hover:text-white hover:scale-105 transition-all duration-300 flex items-center gap-1.5 text-xs font-semibold"
                 title="LinkedIn"
               >
-                <Linkedin className="w-4 h-4 text-indigo-400/80" />
+                <Linkedin className="w-4 h-4 text-slate-400" />
                 <span>LinkedIn</span>
               </a>
             </div>
           </div>
-
+ 
           <p className="mt-3 text-center text-[10px] text-slate-700 select-none">
-            © 2025 <span className="text-slate-600 font-semibold">Jobspilot AI</span>. All rights reserved.
+            © 2025 <span className="text-slate-600 font-semibold">Priyatam's JobPilot AI</span>. All rights reserved.
           </p>
         </div>
       </aside>
@@ -140,7 +140,7 @@ export function Layout({ children }: LayoutProps) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="h-16 border-b border-slate-900 bg-slate-950/40 backdrop-blur-md flex items-center justify-between px-4 md:px-8 shrink-0">
+        <header className="h-16 border-b border-white/5 bg-[#0a0a0a]/40 backdrop-blur-md flex items-center justify-between px-4 md:px-8 shrink-0">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}

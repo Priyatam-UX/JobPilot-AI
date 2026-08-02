@@ -60,10 +60,10 @@ export function Dashboard() {
   const offerRate = summary.rates.offer_rate;
 
   const stats = [
-    { name: 'Active Interviews', value: apps.interview || 0, icon: Clock, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
-    { name: 'Total Applied', value: totalApplied, icon: Trello, color: 'text-sky-400', bg: 'bg-sky-500/10' },
-    { name: 'Offers Received', value: apps.offer || 0, icon: Award, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-    { name: 'Resumes Uploaded', value: summary.resumes.total, icon: FileText, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+    { name: 'Active Interviews', value: apps.interview || 0, icon: Clock, color: 'text-white', bg: 'bg-white/5 border border-white/5' },
+    { name: 'Total Applied', value: totalApplied, icon: Trello, color: 'text-white', bg: 'bg-white/5 border border-white/5' },
+    { name: 'Offers Received', value: apps.offer || 0, icon: Award, color: 'text-white', bg: 'bg-white/5 border border-white/5' },
+    { name: 'Resumes Uploaded', value: summary.resumes.total, icon: FileText, color: 'text-white', bg: 'bg-white/5 border border-white/5' },
   ];
 
   // Dynamic recommendations based on live data
@@ -104,15 +104,15 @@ export function Dashboard() {
       className="space-y-8"
     >
       {/* Welcome Banner */}
-      <TiltCard variants={itemVariants} className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-950 border border-slate-800 p-8 shadow-xl">
-        <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-[radial-gradient(circle_at_bottom_right,_var(--tw-gradient-stops))] from-indigo-500/10 via-violet-500/5 to-transparent blur-xl pointer-events-none" />
+      <TiltCard variants={itemVariants} className="relative rounded-3xl overflow-hidden bg-[#0a0a0a] border border-white/5 p-8 shadow-xl">
+        <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-[radial-gradient(circle_at_bottom_right,_var(--tw-gradient-stops))] from-white/5 via-white/[0.02] to-transparent blur-xl pointer-events-none" />
         <div className="relative max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 rounded-full text-xs font-semibold text-indigo-400 border border-indigo-500/20 mb-4">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-full text-xs font-semibold text-white border border-white/10 mb-4">
             <Sparkles className="w-3.5 h-3.5" />
             {isLoading ? 'Loading your data...' : 'Live WebSocket Connection Active'}
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight text-white mb-2">
-            Welcome back to Jobspilot AI
+            Welcome back to Priyatam's JobPilot AI
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed mb-6">
             {summary.jobs.total > 0
@@ -120,11 +120,11 @@ export function Dashboard() {
               : 'Your AI-powered job search copilot is ready. Start by uploading your resume and discovering matching jobs.'}
           </p>
           <div className="flex gap-4">
-            <Link to="/jobs" className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-indigo-600/10 transition-all duration-300 flex items-center gap-2">
+            <Link to="/jobs" className="px-5 py-2.5 bg-white text-black hover:bg-slate-200 rounded-xl text-xs font-semibold shadow-md transition-all duration-300 flex items-center gap-2">
               <Zap className="w-4 h-4" />
               Discover Matches
             </Link>
-            <Link to="/resumes" className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition-all duration-300 flex items-center gap-2">
+            <Link to="/resumes" className="px-5 py-2.5 bg-[#0a0a0a] hover:bg-white/5 border border-white/5 text-slate-300 rounded-xl text-xs font-semibold transition-all duration-300 flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Optimize Resume
             </Link>
@@ -137,7 +137,7 @@ export function Dashboard() {
         {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
-            <TiltCard variants={itemVariants} key={i} className="glass rounded-2xl p-6 shadow-md transition-all duration-300 hover:scale-[1.02]">
+            <TiltCard variants={itemVariants} key={i} className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 shadow-md transition-all duration-300 hover:scale-[1.02]">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{stat.name}</span>
                 <div className={`p-2.5 rounded-xl ${stat.bg}`}>
@@ -148,7 +148,7 @@ export function Dashboard() {
                 {isLoading ? '—' : stat.value}
               </h3>
               <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-indigo-400" />
+                <CheckCircle className="w-3.5 h-3.5 text-slate-400" />
                 Live from database
               </p>
             </TiltCard>
@@ -159,23 +159,23 @@ export function Dashboard() {
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Copilot Suggestions Panel */}
-        <TiltCard variants={itemVariants} className="glass rounded-3xl p-6 shadow-md lg:col-span-2 flex flex-col">
+        <TiltCard variants={itemVariants} className="bg-[#0a0a0a] border border-white/5 rounded-3xl p-6 shadow-md lg:col-span-2 flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-indigo-400" />
+              <Sparkles className="w-5 h-5 text-white" />
               Copilot Recommendations
             </h3>
             <span className="text-xs text-slate-500">{suggestions.length} actions available</span>
           </div>
-
+ 
           <div className="space-y-4 flex-1">
             {suggestions.map((sug, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-slate-950/60 border border-slate-900 hover:border-slate-800 transition-all duration-300 flex items-start justify-between gap-4">
+              <div key={i} className="p-4 rounded-2xl bg-[#030303] border border-white/5 hover:border-white/10 transition-all duration-300 flex items-start justify-between gap-4">
                 <div className="space-y-1">
                   <h4 className="text-sm font-semibold text-white">{sug.title}</h4>
                   <p className="text-xs text-slate-400 leading-relaxed">{sug.desc}</p>
                 </div>
-                <Link to={sug.link} className="shrink-0 flex items-center gap-1 text-xs font-semibold text-indigo-400 hover:text-indigo-300 py-1.5 px-3 bg-indigo-500/5 hover:bg-indigo-500/10 rounded-lg border border-indigo-500/10 transition-all duration-300">
+                <Link to={sug.link} className="shrink-0 flex items-center gap-1 text-xs font-semibold text-white hover:text-slate-300 py-1.5 px-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition-all duration-300">
                   {sug.action}
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </Link>
@@ -185,7 +185,7 @@ export function Dashboard() {
 
           {/* Recent Activity */}
           {summary.recent_activity.length > 0 && (
-            <div className="mt-6 pt-6 border-t border-slate-900/60">
+            <div className="mt-6 pt-6 border-t border-white/5">
               <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                 <Activity className="w-3.5 h-3.5" /> Recent Activity
               </h4>
@@ -207,7 +207,7 @@ export function Dashboard() {
         </TiltCard>
 
         {/* Analytics Card */}
-        <TiltCard variants={itemVariants} className="glass rounded-3xl p-6 shadow-md flex flex-col justify-between">
+        <TiltCard variants={itemVariants} className="bg-[#0a0a0a] border border-white/5 rounded-3xl p-6 shadow-md flex flex-col justify-between">
           <div>
             <h3 className="text-lg font-bold tracking-tight text-white mb-6">Application Metrics</h3>
             <div className="space-y-5">
@@ -216,17 +216,17 @@ export function Dashboard() {
                   <span>Interview Rate</span>
                   <span>{interviewRate}%</span>
                 </div>
-                <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
-                  <div className="h-full bg-indigo-500 rounded-full transition-all duration-700" style={{ width: `${Math.min(interviewRate, 100)}%` }} />
+                <div className="w-full h-2 bg-[#030303] rounded-full overflow-hidden">
+                  <div className="h-full bg-white rounded-full transition-all duration-700" style={{ width: `${Math.min(interviewRate, 100)}%` }} />
                 </div>
               </div>
-
+ 
               <div>
                 <div className="flex justify-between text-xs font-semibold text-slate-400 mb-1.5">
                   <span>Offer Rate</span>
                   <span>{offerRate}%</span>
                 </div>
-                <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-[#030303] rounded-full overflow-hidden">
                   <div className="h-full bg-emerald-500 rounded-full transition-all duration-700" style={{ width: `${Math.min(offerRate, 100)}%` }} />
                 </div>
               </div>
@@ -245,7 +245,7 @@ export function Dashboard() {
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-slate-900/60 text-center">
+          <div className="mt-8 pt-6 border-t border-white/5 text-center">
             <p className="text-xs text-slate-500">
               {totalApplied > 0
                 ? `${totalApplied} total applications tracked in your pipeline.`
