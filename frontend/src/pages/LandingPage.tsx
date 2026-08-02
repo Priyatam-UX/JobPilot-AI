@@ -5,63 +5,76 @@ import {
   FileText,
   Briefcase,
   Target,
-  MessageSquare
+  MessageSquare,
+  Sparkles,
+  BarChart2
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 
-const fadeInUp = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-50px" },
-  transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+// Animation Variants
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 const staggerContainer = {
-  initial: { opacity: 0 },
-  whileInView: { opacity: 1 },
-  viewport: { once: true },
-  transition: { staggerChildren: 0.15 }
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
+
+const abstractCardVariants = {
+  hidden: { opacity: 0, scale: 0.95, y: 20 },
+  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } }
 };
 
 export function LandingPage() {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+  
+  const yParallax = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const opacityFade = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
   return (
-    <div className="min-h-screen w-full bg-[#fdfdfc] text-slate-900 font-sans flex flex-col relative overflow-hidden selection:bg-blue-500/20">
+    <div ref={containerRef} className="min-h-screen w-full bg-[#030303] text-slate-300 font-sans flex flex-col relative overflow-hidden selection:bg-white/20">
       
-      {/* Exquisite Light Theme Ambient Gradients */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#fce7f3]/60 rounded-full blur-[120px] pointer-events-none mix-blend-multiply" />
-      <div className="absolute top-[20%] right-[-10%] w-[40%] h-[60%] bg-[#e0f2fe]/60 rounded-full blur-[120px] pointer-events-none mix-blend-multiply" />
+      {/* Background Noise & Subtle Glow */}
+      <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[80%] h-[50%] bg-indigo-500/5 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.015] mix-blend-overlay pointer-events-none" />
 
       {/* --- TOP NAVBAR --- */}
       <motion.nav 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="h-[80px] w-full border-b border-slate-200/60 bg-[#fdfdfc]/80 backdrop-blur-xl flex items-center justify-between px-8 md:px-16 z-50 fixed top-0"
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        className="h-[80px] w-full border-b border-white/5 bg-[#030303]/70 backdrop-blur-xl flex items-center justify-between px-8 md:px-16 z-50 fixed top-0"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center shadow-md">
+          <div className="w-8 h-8 rounded flex items-center justify-center bg-white text-black">
             <Command className="w-4 h-4" />
           </div>
-          <span className="font-bold text-[16px] tracking-tight text-slate-900">JobPilot AI</span>
+          <span className="font-semibold text-[15px] tracking-tight text-white">JobPilot AI</span>
         </div>
 
         <div className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors">Platform</a>
-          <a href="#testimonials" className="text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors">Customers</a>
-          <a href="#pricing" className="text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors">Pricing</a>
+          <a href="#features" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Platform</a>
+          <a href="#testimonials" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Customers</a>
+          <a href="#pricing" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Pricing</a>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           <Link 
             to="/login" 
-            className="text-[14px] font-medium text-slate-600 hover:text-slate-900 transition-colors px-4 py-2"
+            className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors"
           >
             Sign in
           </Link>
           <Link 
             to="/register" 
-            className="group flex items-center gap-2 text-[14px] font-medium text-white px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 transition-all shadow-[0_4px_14px_0_rgba(0,0,0,0.1)]"
+            className="group flex items-center gap-2 text-[13px] font-medium text-black px-5 py-2 rounded bg-white hover:bg-slate-200 transition-colors"
           >
             Get started
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -70,123 +83,164 @@ export function LandingPage() {
       </motion.nav>
 
       {/* --- HERO SECTION --- */}
-      <main className="flex-1 flex flex-col items-center pt-40 pb-24 px-6 relative z-10 w-full max-w-7xl mx-auto">
+      <main className="flex-1 flex flex-col justify-center pt-48 pb-32 px-6 relative z-10 w-full max-w-[1400px] mx-auto">
         <motion.div 
+          style={{ y: yParallax, opacity: opacityFade }}
           variants={staggerContainer}
-          initial="initial"
-          animate="whileInView"
-          className="flex flex-col lg:flex-row items-center gap-16 w-full"
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col lg:flex-row items-center gap-20 w-full"
         >
-          {/* Hero Content */}
-          <div className="flex-1 flex flex-col items-start text-left">
-            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200/60 text-[13px] font-medium text-blue-700 mb-8 shadow-sm">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-              </span>
-              Introducing JobPilot AI 2.0
+          {/* Hero Content (Left) */}
+          <div className="flex-1 flex flex-col items-start text-left z-20">
+            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-white/10 bg-white/[0.02] backdrop-blur-sm text-[12px] font-medium text-[#888888] mb-8">
+              <Sparkles className="w-3.5 h-3.5 text-white" />
+              <span>JobPilot AI 2.0 Engine</span>
             </motion.div>
             
-            <motion.h1 variants={fadeInUp} className="text-5xl md:text-[80px] font-bold tracking-tight text-slate-900 mb-6 leading-[1.05]">
-              Hire smarter, <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">scale faster.</span>
+            <motion.h1 variants={fadeUp} className="text-6xl md:text-[88px] font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-[#555555] mb-8 leading-[1.05]">
+              Recruitment, <br />
+              engineered.
             </motion.h1>
             
-            <motion.p variants={fadeInUp} className="text-lg md:text-xl text-slate-600 mb-10 max-w-xl leading-relaxed">
-              JobPilot AI automates the heavy lifting of recruitment. Screen, interview, and hire top-tier talent with unprecedented precision using our next-generation AI platform.
+            <motion.p variants={fadeUp} className="text-lg md:text-xl text-[#888888] mb-12 max-w-xl leading-relaxed font-light">
+              A meticulously crafted intelligence layer for your hiring pipeline. Screen, rank, and interview with algorithmic precision. No guesswork, just pure performance.
             </motion.p>
             
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4">
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-5">
               <Link 
                 to="/register" 
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 text-white font-semibold text-[15px] hover:bg-blue-700 transition-colors shadow-[0_8px_24px_rgba(37,99,235,0.25)] hover:shadow-[0_12px_28px_rgba(37,99,235,0.35)] hover:-translate-y-0.5 duration-200"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded bg-white text-black font-medium text-[14px] hover:bg-slate-200 hover:scale-[1.02] transition-all duration-300"
               >
-                Start free trial <ArrowRight className="w-4 h-4" />
+                Deploy Now <ArrowRight className="w-4 h-4" />
               </Link>
               <Link 
                 to="/login" 
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold text-[15px] hover:bg-slate-50 transition-colors shadow-sm"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded bg-transparent border border-white/10 text-white font-medium text-[14px] hover:bg-white/[0.03] transition-colors"
               >
-                Contact sales
+                Access Console
               </Link>
             </motion.div>
           </div>
 
-          {/* Hero Image / Illustration */}
-          <motion.div variants={fadeInUp} className="flex-1 w-full relative">
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-fuchsia-500/10 rounded-[40px] blur-3xl transform -rotate-6 scale-105" />
-            <div className="relative bg-white p-2 rounded-[32px] border border-slate-200/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden">
-              <img 
-                src="/hero-illustration.jpg" 
-                alt="JobPilot AI Dashboard Abstract Representation" 
-                className="w-full h-auto rounded-[24px] object-cover aspect-video"
+          {/* Abstract Code-Driven UI Illustration (Right) */}
+          <motion.div variants={fadeUp} className="flex-1 w-full relative h-[500px] flex items-center justify-center pointer-events-none">
+            {/* Base Glass Pane */}
+            <motion.div 
+              initial={{ rotateX: 20, rotateY: -10, opacity: 0 }}
+              animate={{ rotateX: 0, rotateY: 0, opacity: 1 }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+              className="absolute w-full max-w-[500px] aspect-square rounded-[32px] border border-white/10 bg-[#0a0a0a]/80 backdrop-blur-2xl shadow-[0_0_100px_rgba(255,255,255,0.03)] flex flex-col p-6 overflow-hidden"
+            >
+              {/* Animated Inner Mock UI Elements */}
+              <div className="flex justify-between items-center mb-8 border-b border-white/5 pb-4">
+                <div className="w-32 h-4 rounded bg-white/10 animate-pulse" />
+                <div className="flex gap-2">
+                  <div className="w-2 h-2 rounded-full bg-white/20" />
+                  <div className="w-2 h-2 rounded-full bg-white/20" />
+                  <div className="w-2 h-2 rounded-full bg-white/20" />
+                </div>
+              </div>
+
+              {/* Staggered Rows */}
+              <div className="flex flex-col gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <motion.div 
+                    key={i}
+                    custom={i}
+                    variants={abstractCardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    transition={{ delay: 0.5 + (i * 0.1) }}
+                    className="w-full h-16 rounded-xl border border-white/5 bg-white/[0.02] flex items-center px-4 gap-4"
+                  >
+                    <div className="w-8 h-8 rounded bg-white/10" />
+                    <div className="flex-1 flex flex-col gap-2">
+                      <div className="w-1/3 h-2 rounded bg-white/20" />
+                      <div className="w-1/4 h-2 rounded bg-white/5" />
+                    </div>
+                    <div className="w-16 h-4 rounded bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+                      <div className="w-8 h-1 rounded bg-emerald-500/50" />
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+              
+              {/* Glowing Orb Overlay */}
+              <motion.div 
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.1, 0.2, 0.1]
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-white blur-[100px]"
               />
-            </div>
+            </motion.div>
           </motion.div>
         </motion.div>
       </main>
 
       {/* --- BENTO BOX FEATURES --- */}
-      <section id="features" className="py-32 bg-white relative z-10 border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-8">
+      <section id="features" className="py-32 bg-[#030303] relative z-10 border-t border-white/5">
+        <div className="max-w-[1400px] mx-auto px-6">
           <motion.div 
-            variants={fadeInUp}
-            initial="initial"
-            whileInView="whileInView"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
-            className="text-center mb-24 max-w-3xl mx-auto"
+            className="text-left mb-20 max-w-3xl"
           >
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6">A complete intelligence suite.</h2>
-            <p className="text-slate-600 text-xl leading-relaxed">Everything you need to source, track, and close the best candidates in the market, beautifully integrated into one platform.</p>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6">A complete intelligence suite.</h2>
+            <p className="text-[#888888] text-xl leading-relaxed font-light">Everything you need to source, track, and close the best candidates in the market, beautifully integrated into one uncompromising platform.</p>
           </motion.div>
           
           <motion.div 
             variants={staggerContainer}
-            initial="initial"
-            whileInView="whileInView"
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
             
             {/* Bento Item 1 - Large */}
-            <motion.div variants={fadeInUp} className="md:col-span-2 p-10 rounded-[32px] bg-slate-50 border border-slate-200 hover:border-blue-200 transition-colors group relative overflow-hidden flex flex-col justify-end min-h-[360px]">
-              <div className="absolute top-0 right-0 w-[60%] h-full bg-gradient-to-l from-blue-100/50 to-transparent pointer-events-none" />
+            <motion.div variants={fadeUp} className="md:col-span-2 p-10 rounded-[32px] bg-[#0a0a0a] border border-white/5 hover:border-white/10 hover:bg-[#0c0c0c] transition-colors group relative overflow-hidden flex flex-col justify-end min-h-[400px]">
+              <div className="absolute top-0 right-0 w-[60%] h-full bg-gradient-to-l from-white/[0.02] to-transparent pointer-events-none" />
               <div className="relative z-10 w-full md:w-3/5">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                  <FileText className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 rounded border border-white/10 flex items-center justify-center mb-8 bg-white/5 group-hover:bg-white/10 transition-colors">
+                  <FileText className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">AI Resume Screening</h3>
-                <p className="text-lg text-slate-600 leading-relaxed">Automatically extract skills, score experience, and rank hundreds of resumes in seconds with human-level accuracy.</p>
+                <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">Algorithmic Resume Screening</h3>
+                <p className="text-[15px] text-[#888888] leading-relaxed font-light">Automatically extract skills, score experience, and rank hundreds of resumes in seconds with human-level accuracy.</p>
               </div>
             </motion.div>
 
             {/* Bento Item 2 - Small */}
-            <motion.div variants={fadeInUp} className="md:col-span-1 p-10 rounded-[32px] bg-slate-50 border border-slate-200 hover:border-blue-200 transition-colors group flex flex-col">
-              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                <Briefcase className="w-6 h-6 text-blue-600" />
+            <motion.div variants={fadeUp} className="md:col-span-1 p-10 rounded-[32px] bg-[#0a0a0a] border border-white/5 hover:border-white/10 hover:bg-[#0c0c0c] transition-colors group flex flex-col">
+              <div className="w-12 h-12 rounded border border-white/10 flex items-center justify-center mb-8 bg-white/5 group-hover:bg-white/10 transition-colors">
+                <Briefcase className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">Role Discovery</h3>
-              <p className="text-lg text-slate-600 leading-relaxed">Identify niche talent pools and match candidates to internal roles automatically.</p>
+              <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">Role Discovery</h3>
+              <p className="text-[15px] text-[#888888] leading-relaxed font-light">Identify niche talent pools and match candidates to internal roles automatically.</p>
             </motion.div>
 
             {/* Bento Item 3 - Small */}
-            <motion.div variants={fadeInUp} className="md:col-span-1 p-10 rounded-[32px] bg-slate-50 border border-slate-200 hover:border-blue-200 transition-colors group flex flex-col">
-              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                <Target className="w-6 h-6 text-blue-600" />
+            <motion.div variants={fadeUp} className="md:col-span-1 p-10 rounded-[32px] bg-[#0a0a0a] border border-white/5 hover:border-white/10 hover:bg-[#0c0c0c] transition-colors group flex flex-col">
+              <div className="w-12 h-12 rounded border border-white/10 flex items-center justify-center mb-8 bg-white/5 group-hover:bg-white/10 transition-colors">
+                <BarChart2 className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">Pipeline Tracker</h3>
-              <p className="text-lg text-slate-600 leading-relaxed">A pristine, visual overview of your entire hiring funnel from source to offer.</p>
+              <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">Pipeline Tracker</h3>
+              <p className="text-[15px] text-[#888888] leading-relaxed font-light">A pristine, visual overview of your entire hiring funnel from source to offer.</p>
             </motion.div>
 
             {/* Bento Item 4 - Large */}
-            <motion.div variants={fadeInUp} className="md:col-span-2 p-10 rounded-[32px] bg-slate-900 text-white border border-slate-800 hover:border-slate-700 transition-colors group relative overflow-hidden flex flex-col justify-end min-h-[360px]">
-              <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[80%] bg-blue-500/20 rounded-full blur-[80px] pointer-events-none" />
+            <motion.div variants={fadeUp} className="md:col-span-2 p-10 rounded-[32px] bg-[#050505] border border-white/5 hover:border-white/10 transition-colors group relative overflow-hidden flex flex-col justify-end min-h-[400px]">
+              <div className="absolute top-[20%] right-[-10%] w-[50%] h-[80%] bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
               <div className="relative z-10 w-full md:w-3/5">
-                <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center mb-6 backdrop-blur-md group-hover:scale-105 transition-transform duration-300">
-                  <MessageSquare className="w-6 h-6 text-blue-400" />
+                <div className="w-12 h-12 rounded border border-white/10 flex items-center justify-center mb-8 bg-white/5 group-hover:bg-white/10 transition-colors backdrop-blur-md">
+                  <MessageSquare className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-3 tracking-tight">Conversational AI Co-Pilot</h3>
-                <p className="text-lg text-slate-300 leading-relaxed">Conduct initial screening interviews automatically with our specialized conversational AI, capable of deep technical qualification.</p>
+                <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">Conversational AI Co-Pilot</h3>
+                <p className="text-[15px] text-[#888888] leading-relaxed font-light">Conduct initial screening interviews automatically with our specialized conversational AI, capable of deep technical qualification.</p>
               </div>
             </motion.div>
 
@@ -195,8 +249,10 @@ export function LandingPage() {
       </section>
 
       {/* --- FOOTER --- */}
-      <footer className="py-16 border-t border-slate-200 bg-[#fdfdfc] text-center relative z-10">
-        <p className="text-[14px] text-slate-500 font-medium">© 2026 JobPilot AI Inc. Built with unprecedented precision.</p>
+      <footer className="py-16 border-t border-white/5 bg-[#030303] text-left px-6 relative z-10">
+        <div className="max-w-[1400px] mx-auto">
+          <p className="text-[13px] text-[#555555] font-medium tracking-wide">© 2026 JOBPILOT AI. ENGINEERED WITH PRECISION.</p>
+        </div>
       </footer>
     </div>
   );
