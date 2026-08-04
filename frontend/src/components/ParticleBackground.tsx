@@ -70,19 +70,23 @@ export function ParticleBackground({
     canvas.width = width;
     canvas.height = height;
 
-    const colors = ['#6366f1', '#8b5cf6', '#3b82f6']; // Indigo, Violet, Blue
+    const colors = [
+      'rgba(255, 255, 255, 0.15)',
+      'rgba(255, 255, 255, 0.25)',
+      'rgba(255, 255, 255, 0.08)'
+    ];
 
     const initParticles = () => {
       particles = [];
-      const count = Math.floor((width * height) / 15000) * (particleCount / 50); // Scale by screen size
+      const count = Math.floor((width * height) / 18000) * (particleCount / 50); // Scale down count slightly
       
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * speed,
-          vy: (Math.random() - 0.5) * speed,
-          radius: Math.random() * 2 + 1,
+          vx: (Math.random() - 0.5) * speed * 0.5, // Slower drift
+          vy: (Math.random() - 0.5) * speed * 0.5,
+          radius: Math.random() * 1.2 + 0.6, // Smaller, sharper particles
           color: colors[Math.floor(Math.random() * colors.length)],
         });
       }
@@ -105,8 +109,8 @@ export function ParticleBackground({
           const forceDirectionY = dyMouse / distMouse;
           const force = (mouseRepelRadius - distMouse) / mouseRepelRadius;
           
-          p.x += forceDirectionX * force * 5;
-          p.y += forceDirectionY * force * 5;
+          p.x += forceDirectionX * force * 3; // Softer push
+          p.y += forceDirectionY * force * 3;
         } else {
           // Normal movement
           p.x += p.vx;
@@ -141,10 +145,10 @@ export function ParticleBackground({
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            // Opacity scales with distance
-            const lineOpacity = (1 - dist / connectionDistance) * 0.2 * opacity;
-            ctx.strokeStyle = `rgba(99, 102, 241, ${lineOpacity})`; // Indigo tint
-            ctx.lineWidth = 1;
+            // Opacity scales with distance and made more subtle
+            const lineOpacity = (1 - dist / connectionDistance) * 0.08 * opacity;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${lineOpacity})`; // Subtle white lines
+            ctx.lineWidth = 0.75;
             ctx.stroke();
           }
         }
