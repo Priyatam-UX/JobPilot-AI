@@ -6,7 +6,11 @@ import {
   Briefcase,
   MessageSquare,
   Sparkles,
-  BarChart2
+  BarChart2,
+  Code2,
+  Cpu,
+  Database,
+  Layers
 } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
@@ -60,8 +64,8 @@ export function LandingPage() {
 
         <div className="hidden md:flex items-center gap-8">
           <a href="#features" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Platform</a>
-          <a href="#testimonials" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Customers</a>
-          <a href="#pricing" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Pricing</a>
+          <a href="#tech-stack" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Technology</a>
+          <a href="#architecture" className="text-[13px] font-medium text-[#888888] hover:text-white transition-colors">Architecture</a>
         </div>
 
         <div className="flex items-center gap-6">
@@ -247,8 +251,8 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* --- TESTIMONIALS SECTION --- */}
-      <section id="testimonials" className="py-32 bg-[#030303] relative z-10 border-t border-white/5">
+      {/* --- TECHNOLOGY SECTION --- */}
+      <section id="tech-stack" className="py-32 bg-[#030303] relative z-10 border-t border-white/5">
         <div className="max-w-[1400px] mx-auto px-6">
           <motion.div 
             variants={fadeUp}
@@ -257,8 +261,8 @@ export function LandingPage() {
             viewport={{ once: true, margin: "-100px" }}
             className="text-left mb-20 max-w-3xl"
           >
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6">Trusted by developers at leading companies.</h2>
-            <p className="text-[#888888] text-xl leading-relaxed font-light">See how JobPilot AI helps engineers navigate their careers and land dream offers.</p>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6">Built with industry standard tech.</h2>
+            <p className="text-[#888888] text-xl leading-relaxed font-light">A robust, modern development stack selected for speed, security, and machine learning performance.</p>
           </motion.div>
 
           <motion.div 
@@ -266,43 +270,45 @@ export function LandingPage() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-4 gap-6"
           >
-            <motion.div variants={fadeUp} className="p-8 rounded-[24px] bg-[#0a0a0a] border border-white/5 flex flex-col justify-between">
-              <p className="text-slate-300 text-base leading-relaxed font-light mb-8">
-                "JobPilot AI completely transformed my job search. The resume optimization was so precise that I started getting callbacks from Tier-1 tech companies within 3 days."
-              </p>
-              <div>
-                <h4 className="text-sm font-bold text-white">Sarah Jenkins</h4>
-                <p className="text-xs text-slate-500 mt-1">Software Engineer, Vercel</p>
+            <motion.div variants={fadeUp} className="p-8 rounded-[24px] bg-[#0a0a0a] border border-white/5 hover:bg-[#0c0c0c] transition-colors group">
+              <div className="w-10 h-10 rounded border border-white/10 flex items-center justify-center mb-6 bg-white/5 group-hover:bg-white/10 transition-colors">
+                <Code2 className="w-5 h-5 text-white" />
               </div>
+              <h3 className="text-lg font-bold text-white mb-3 tracking-tight">React & TypeScript</h3>
+              <p className="text-sm text-[#888888] leading-relaxed font-light">Type-safe components, custom hooks, and Tailwind CSS templates providing a modern SPA interface.</p>
             </motion.div>
 
-            <motion.div variants={fadeUp} className="p-8 rounded-[24px] bg-[#0a0a0a] border border-white/5 flex flex-col justify-between">
-              <p className="text-slate-300 text-base leading-relaxed font-light mb-8">
-                "The mock interviews with the Conversational AI Coach felt incredibly realistic. It helped me structure my STAR answers and walk into the loop with total confidence."
-              </p>
-              <div>
-                <h4 className="text-sm font-bold text-white">David Chen</h4>
-                <p className="text-xs text-slate-500 mt-1">Senior Frontend Lead, Stripe</p>
+            <motion.div variants={fadeUp} className="p-8 rounded-[24px] bg-[#0a0a0a] border border-white/5 hover:bg-[#0c0c0c] transition-colors group">
+              <div className="w-10 h-10 rounded border border-white/10 flex items-center justify-center mb-6 bg-white/5 group-hover:bg-white/10 transition-colors">
+                <Layers className="w-5 h-5 text-white" />
               </div>
+              <h3 className="text-lg font-bold text-white mb-3 tracking-tight">FastAPI</h3>
+              <p className="text-sm text-[#888888] leading-relaxed font-light">Asynchronous Python routing, request validations, and real-time state synchronization using WebSockets.</p>
             </motion.div>
 
-            <motion.div variants={fadeUp} className="p-8 rounded-[24px] bg-[#0a0a0a] border border-white/5 flex flex-col justify-between">
-              <p className="text-slate-300 text-base leading-relaxed font-light mb-8">
-                "I tracked over 50 applications using the pipeline tracker. The AI auto-discovery found hidden listings that fit my background that I hadn't seen anywhere else."
-              </p>
-              <div>
-                <h4 className="text-sm font-bold text-white">Marcus Vance</h4>
-                <p className="text-xs text-slate-500 mt-1">Product Engineer, Supabase</p>
+            <motion.div variants={fadeUp} className="p-8 rounded-[24px] bg-[#0a0a0a] border border-white/5 hover:bg-[#0c0c0c] transition-colors group">
+              <div className="w-10 h-10 rounded border border-white/10 flex items-center justify-center mb-6 bg-white/5 group-hover:bg-white/10 transition-colors">
+                <Cpu className="w-5 h-5 text-white" />
               </div>
+              <h3 className="text-lg font-bold text-white mb-3 tracking-tight">OpenAI Engine</h3>
+              <p className="text-sm text-[#888888] leading-relaxed font-light">Advanced language models parsing skills, evaluating resumes, and scoring behavioral answers in real-time.</p>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="p-8 rounded-[24px] bg-[#0a0a0a] border border-white/5 hover:bg-[#0c0c0c] transition-colors group">
+              <div className="w-10 h-10 rounded border border-white/10 flex items-center justify-center mb-6 bg-white/5 group-hover:bg-white/10 transition-colors">
+                <Database className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-3 tracking-tight">PostgreSQL & JWT</h3>
+              <p className="text-sm text-[#888888] leading-relaxed font-light">Supabase database hosting containing relational user profiles, analytics triggers, and secure auth tokens.</p>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* --- PRICING SECTION --- */}
-      <section id="pricing" className="py-32 bg-[#030303] relative z-10 border-t border-white/5">
+      {/* --- SYSTEM ARCHITECTURE SECTION --- */}
+      <section id="architecture" className="py-32 bg-[#030303] relative z-10 border-t border-white/5">
         <div className="max-w-[1400px] mx-auto px-6">
           <motion.div 
             variants={fadeUp}
@@ -311,80 +317,58 @@ export function LandingPage() {
             viewport={{ once: true, margin: "-100px" }}
             className="text-left mb-20 max-w-3xl"
           >
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6">Simple, transparent pricing.</h2>
-            <p className="text-[#888888] text-xl leading-relaxed font-light">Start boosting your applications for free, and unlock powerful AI features when you're ready to accelerate.</p>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6">Robust architecture design.</h2>
+            <p className="text-[#888888] text-xl leading-relaxed font-light">A clean, decoupled architecture separating presentation, business logic execution, and database hosting layers.</p>
           </motion.div>
 
           <motion.div 
-            variants={staggerContainer}
+            variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch"
+            className="flex flex-col md:flex-row items-stretch justify-between gap-8 p-10 rounded-[32px] bg-[#0a0a0a] border border-white/5 relative overflow-hidden"
           >
-            {/* Free Plan */}
-            <motion.div variants={fadeUp} className="p-10 rounded-[32px] bg-[#0a0a0a] border border-white/5 flex flex-col justify-between h-full">
+            {/* Front Card */}
+            <div className="flex-1 p-6 rounded-2xl border border-white/5 bg-white/[0.01] flex flex-col justify-between text-left">
               <div>
-                <h3 className="text-lg font-bold text-white mb-2">Developer</h3>
-                <p className="text-sm text-slate-500 font-light mb-6">For developers starting their search.</p>
-                <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-5xl font-bold text-white">$0</span>
-                  <span className="text-sm text-slate-500">/mo</span>
-                </div>
-                <ul className="space-y-4 text-sm text-slate-400 font-light mb-8">
-                  <li className="flex items-center gap-2">✓ Track up to 20 applications</li>
-                  <li className="flex items-center gap-2">✓ Basic resume formatting</li>
-                  <li className="flex items-center gap-2">✓ Job board discovery</li>
-                </ul>
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Tier 1 • Client</div>
+                <h4 className="text-xl font-bold text-white mb-3">Single Page Application</h4>
+                <p className="text-sm text-slate-400 font-light leading-relaxed mb-6">React frontend managing local storage, state cycles (Zustand), and socket streams. Displays charts, pipeline tracking cards, and the coach console.</p>
               </div>
-              <Link to="/register" className="w-full text-center py-3 bg-[#111111] hover:bg-[#1a1a1a] border border-white/10 text-white rounded font-medium text-sm transition-colors block">
-                Start Free
-              </Link>
-            </motion.div>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-[11px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white">Vite / TS</span>
+                <span className="text-[11px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white">Tailwind CSS</span>
+                <span className="text-[11px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white">Zustand</span>
+              </div>
+            </div>
 
-            {/* Pro Plan */}
-            <motion.div variants={fadeUp} className="p-10 rounded-[32px] bg-[#0c0c0c] border border-white/20 flex flex-col justify-between h-full relative shadow-[0_0_50px_rgba(255,255,255,0.02)]">
-              <div className="absolute -top-4 left-10 px-3 py-1 bg-white text-black text-[10px] uppercase font-bold tracking-widest rounded">
-                Most Popular
-              </div>
+            {/* Middle Card */}
+            <div className="flex-1 p-6 rounded-2xl border border-white/5 bg-white/[0.01] flex flex-col justify-between text-left">
               <div>
-                <h3 className="text-lg font-bold text-white mb-2">Professional</h3>
-                <p className="text-sm text-slate-500 font-light mb-6">Complete suite for active job seekers.</p>
-                <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-5xl font-bold text-white">$19</span>
-                  <span className="text-sm text-slate-500">/mo</span>
-                </div>
-                <ul className="space-y-4 text-sm text-slate-300 font-light mb-8">
-                  <li className="flex items-center gap-2">✓ Unlimited application tracking</li>
-                  <li className="flex items-center gap-2">✓ AI ATS optimization & scoring</li>
-                  <li className="flex items-center gap-2">✓ Unlimited AI Career Coach credits</li>
-                  <li className="flex items-center gap-2">✓ Direct referral opportunities</li>
-                </ul>
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Tier 2 • Services</div>
+                <h4 className="text-xl font-bold text-white mb-3">FastAPI Middleware</h4>
+                <p className="text-sm text-slate-400 font-light leading-relaxed mb-6">Asynchronous core handles data requests, user authentication, and serves WebSocket triggers. Orchestrates requests between the storage engine and OpenAI.</p>
               </div>
-              <Link to="/register" className="w-full text-center py-3 bg-white hover:bg-slate-200 text-black rounded font-medium text-sm transition-colors block">
-                Upgrade to Pro
-              </Link>
-            </motion.div>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-[11px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white">Uvicorn / FastAPI</span>
+                <span className="text-[11px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white">Python API</span>
+                <span className="text-[11px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white">WebSockets</span>
+              </div>
+            </div>
 
-            {/* Enterprise Plan */}
-            <motion.div variants={fadeUp} className="p-10 rounded-[32px] bg-[#0a0a0a] border border-white/5 flex flex-col justify-between h-full">
+            {/* Back Card */}
+            <div className="flex-1 p-6 rounded-2xl border border-white/5 bg-white/[0.01] flex flex-col justify-between text-left">
               <div>
-                <h3 className="text-lg font-bold text-white mb-2">Enterprise</h3>
-                <p className="text-sm text-slate-500 font-light mb-6">For hiring teams and boutique agencies.</p>
-                <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-5xl font-bold text-white">Custom</span>
-                </div>
-                <ul className="space-y-4 text-sm text-slate-400 font-light mb-8">
-                  <li className="flex items-center gap-2">✓ Multi-seat team dashboard</li>
-                  <li className="flex items-center gap-2">✓ Dedicated account manager</li>
-                  <li className="flex items-center gap-2">✓ Tailored AI scoring models</li>
-                  <li className="flex items-center gap-2">✓ API custom integrations</li>
-                </ul>
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Tier 3 • Platform</div>
+                <h4 className="text-xl font-bold text-white mb-3">Storage & Intelligence</h4>
+                <p className="text-sm text-slate-400 font-light leading-relaxed mb-6">Supabase host stores relational user tables, tracked applications, and system logs. Generative AI processes candidate resume checkers and interview coaching mocks.</p>
               </div>
-              <Link to="/login" className="w-full text-center py-3 bg-[#111111] hover:bg-[#1a1a1a] border border-white/10 text-white rounded font-medium text-sm transition-colors block">
-                Contact Sales
-              </Link>
-            </motion.div>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-[11px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white">PostgreSQL</span>
+                <span className="text-[11px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white">Supabase</span>
+                <span className="text-[11px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-white">OpenAI API</span>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
