@@ -10,7 +10,9 @@ import {
   Code2,
   Cpu,
   Database,
-  Layers
+  Layers,
+  Github,
+  Linkedin
 } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
@@ -374,10 +376,61 @@ export function LandingPage() {
       </section>
 
       {/* --- FOOTER --- */}
-      <footer className="py-16 border-t border-white/5 bg-[#030303] text-left px-6 relative z-10">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
-          <p className="text-[13px] text-[#555555] font-medium tracking-wide">© 2026 PRIYATAM'S JOBPILOT AI. ENGINEERED WITH PRECISION.</p>
-          <p className="text-[13px] text-[#555555] font-medium tracking-wide">Created by Priyatam</p>
+      <footer className="pt-24 pb-12 border-t border-white/5 bg-[#030303] relative z-10 text-slate-400">
+        <div className="max-w-[1400px] mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            {/* Logo and Brand Desc */}
+            <div className="md:col-span-2 space-y-4">
+              <div className="flex items-center gap-3 text-white">
+                <div className="w-6 h-6 rounded flex items-center justify-center bg-white text-black">
+                  <Command className="w-3.5 h-3.5" />
+                </div>
+                <span className="font-semibold text-sm tracking-tight">Priyatam's JobPilot AI</span>
+              </div>
+              <p className="text-xs text-slate-500 max-w-sm leading-relaxed font-light">
+                An advanced career intelligence platform designed to automate application tracking, customize resumes, and provide live interview preparation.
+              </p>
+            </div>
+
+            {/* Sitemap/Links */}
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-white uppercase tracking-widest">Platform</h4>
+              <ul className="space-y-2 text-xs font-light">
+                <li><a href="#features" className="hover:text-white transition-colors">Core Features</a></li>
+                <li><a href="#tech-stack" className="hover:text-white transition-colors">Tech Stack</a></li>
+                <li><a href="#architecture" className="hover:text-white transition-colors">Architecture</a></li>
+              </ul>
+            </div>
+
+            {/* Connect / Author */}
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-white uppercase tracking-widest">Creator</h4>
+              <ul className="space-y-2 text-xs font-light">
+                <li><a href="https://www.linkedin.com/in/priyatam-chinnari/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">LinkedIn Profile</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Project Source</a></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Copyright Area */}
+          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-600">
+            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+              <span>© {new Date().getFullYear()} Priyatam. All rights reserved.</span>
+              <span className="hidden md:inline text-white/10">|</span>
+              <span className="font-light text-slate-500">Engineered with precision.</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <a href="https://www.linkedin.com/in/priyatam-chinnari/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1.5 font-light" title="LinkedIn">
+                <Linkedin className="w-3.5 h-3.5" />
+                <span>LinkedIn</span>
+              </a>
+              <span className="text-white/10">|</span>
+              <a href="#" className="hover:text-white transition-colors flex items-center gap-1.5 font-light" title="GitHub">
+                <Github className="w-3.5 h-3.5" />
+                <span>GitHub</span>
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
